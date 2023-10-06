@@ -1,7 +1,8 @@
 import neopixel
 import machine
 
-FPS = 16
+from config import FPS, GPIO_PIN
+
 
 class Commander:
     def __init__(self, num_of_leds, gpio_pin):

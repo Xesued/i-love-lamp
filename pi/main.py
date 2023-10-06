@@ -3,15 +3,12 @@ import network
 import usocket as socket
 from micropython import const
 from commander import Commander
+from config import WIFI_SSID, WIFI_PASSWORD, LED_COUNT, PORT
 
-SSID = const('WIFI_SSID')
-PASSWORD = const('WIFI_PASSWORD')
 
 RED = const((255, 0, 0,0))
 WHITE = const((0, 0, 0,100))
 
-PORT = 50222
-LED_COUNT = const(60)
 
 def connectToWifi():
     """ Connect to the local network
@@ -23,7 +20,7 @@ def connectToWifi():
 
         # Power managment, don't shut down wifi
         wlan.config(pm = 16)
-        wlan.connect(SSID, PASSWORD)
+        wlan.connect(WIFI_SSID, WIFI_PASSWORD)
         max_wait = 20
         
         status = wlan.status
@@ -62,32 +59,39 @@ def to_color(bv):
         return RED
     return WHITE 
 
+def color_ip(commander):
+    """
+    Show the devices IP by encoding it in the LEDs
+    TODO: Make this a oct with 8 colors vs binary. 
+    """ 
+    ip_bits = bin(int(ip.split('.')[-1]))
+    ip_leds = [to_color(i) for i in ip_bits]
+
+    for id, il in enumerate(ip_leds):
+        commander.led_strip[id] = il
+    commander.led_strip.write()
+
 wlan = connectToWifi()
 ip = wlan.ifconfig()[0]
 s = getSocket(ip, PORT)
 s.settimeout(2)
 
 ip_bits = bin(int(ip.split('.')[-1]))
-print('IP bits', ip_bits)
-
 ip_leds = [to_color(i) for i in ip_bits]
-print('IP leds', ip_leds)
-
 
 commander = Commander(LED_COUNT, 0)
+color_ip(commander)
 
-for id, il in enumerate(ip_leds):
-    commander.led_strip[id] = il
-commander.led_strip.write()
-
+# deref for performance
 ticks_us = utime.ticks_us
-
+parse = commander.parse
+recv = s.recv
 
 while True:
     try:    
-        data = s.recv(LED_COUNT * 4)
+        data = recv(LED_COUNT * 4)
         start = ticks_us()
-        commander.parse(data)
+        parse(data)
 
     except OSError as e:
         p=1 # No noop
