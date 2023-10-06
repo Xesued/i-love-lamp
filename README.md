@@ -1,11 +1,11 @@
 I Love Lamp
 =====================
 
-A pet project for creating a programmable LED strip of 60 LEDs in a vertial lamp.
+A pet project for creating a programmable LED strip of 60 LEDs in a vertical lamp.
 
-Raspberry Pi Picos are used to controll the light strips.  They are a thin client
+Raspberry Pi Picos are used to control the light strips.  They are a thin client
 that receives a stream of led color values.  This project includes a Node server
-that is the lighting engine, and communicates with the Picos.  It can also accept
+that is the lighting engine and communicates with the Picos.  It can also accept
 commands from a Web client.
 
 ## Demo Video
