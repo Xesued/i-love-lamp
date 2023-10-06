@@ -1,0 +1,14 @@
+{
+  "extends": "@tsconfig/node20/tsconfig.json",
+  // Most ts-node options can be specified here using their programmatic names.
+  "compilerOptions": {
+    "paths": {
+      "engine": [
+        "../../engine"
+      ],
+      "engine/*": [
+        "../../engine/*"
+      ]
+    } // different options with a single tsconfig.json.
+  }
+}

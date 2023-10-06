@@ -1,0 +1,1 @@
+const LAMP_PORT = 50222
