@@ -4,10 +4,10 @@
   "compilerOptions": {
     "paths": {
       "engine": [
-        "../../engine"
+        "../engine"
       ],
       "engine/*": [
-        "../../engine/*"
+        "../engine/*"
       ]
     } // different options with a single tsconfig.json.
   }

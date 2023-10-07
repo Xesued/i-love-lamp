@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      'engine': path.join(__dirname,'..','..','engine'),
+      'engine': path.join(__dirname, '..', 'engine'),
     }
   }
 })

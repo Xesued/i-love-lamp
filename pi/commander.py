@@ -10,7 +10,6 @@ class Commander:
         param: neo_strip Instance of Neopixel 
         """
         self.num_of_leds = num_of_leds
-        p = machine.Pin.board.GP0;
         self.led_strip = neopixel.NeoPixel(p, num_of_leds, bpp=4)
 
     def parse(self, command_bytes):

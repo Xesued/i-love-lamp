@@ -1,4 +1,4 @@
-import type { RGB } from './types';
+import type { RGB } from "./types"
 
 export const RED: RGB = [255, 0, 0]
 export const YELLOW: RGB = [255, 150, 0]

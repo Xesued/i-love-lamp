@@ -21,11 +21,11 @@
     "noFallthroughCasesInSwitch": true,
 
     "paths": {
-      "engine": ["../../engine/index.ts"],
-      "engine/*": ["../../engine/*"]
+      "engine": ["../engine/index.ts"],
+      "engine/*": ["../engine/*"]
     }
   },
 
-  "include": ["src", "../../engine/__test__.ts", "../../engine/types.ts"],
+  "include": ["src", "../engine/__test__.ts", "../engine/types.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

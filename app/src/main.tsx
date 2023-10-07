@@ -1,19 +1,20 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import {
-  createBrowserRouter,
-  RouterProvider,
-} from "react-router-dom"
-import { NextUIProvider } from '@nextui-org/react'
+import React from "react"
+import ReactDOM from "react-dom/client"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { store } from "./state/store"
+import { Provider } from "react-redux"
 
+import App from "./routes/App"
+import Lamps from "./routes/Lamps"
+import AddLamp from "./routes/AddLamp"
+import Animation from "./routes/Animation"
+import Root from "./routes/Root.tsx"
 
-import App from './routes/App'
-import Config from './routes/Config'
-import Animation from './routes/Animation'
-import ErrorPage from './error-page'
+import { ThemeProvider } from "@material-tailwind/react";
 
-import './index.css'
-import Root from './routes/Root.tsx'
+import ErrorPage from "./error-page"
+
+import "./index.css"
 
 const router = createBrowserRouter([
   {
@@ -31,20 +32,27 @@ const router = createBrowserRouter([
         errorElement: <ErrorPage />,
       },
       {
-        path: "/config",
-        element: <Config />,
+        path: "/lamps",
+        element: <Lamps />,
         errorElement: <ErrorPage />,
       },
-    ]
-  }
-]);
+      {
+        path: "/add-lamp",
+        element: <AddLamp />,
+        errorElement: <ErrorPage />,
+      },
+    ],
+  },
+])
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <NextUIProvider>
-      <main className="dark text-foreground bg-background">
-        <RouterProvider router={router} />
-      </main>
-    </NextUIProvider>
+    <Provider store={store}>
+      <ThemeProvider>
+        <main className="dark text-foreground bg-background">
+          <RouterProvider router={router} />
+        </main>
+      </ThemeProvider>
+    </Provider>
   </React.StrictMode>,
 )
