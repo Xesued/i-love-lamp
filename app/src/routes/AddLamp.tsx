@@ -1,15 +1,21 @@
 import { useState } from "react"
-import { Button, Input } from "@material-tailwind/react"
+import { Button, Input, Typography } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
 
 import { addLamp } from "../state/lampSlice"
 import { useAppDispatch } from "../state/hooks"
 
+type FormErrors = {
+  ip?: string
+  name?: string
+}
+
 export default function AddLamp() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const [newIp, setNewIp] = useState("")
+  const [newIp, setNewIp] = useState<string | null>("")
   const [newName, setNewName] = useState("")
+  const [formErrors, setFormErrors] = useState<FormErrors>({})
 
   const handleNewIpChange = (e: React.FormEvent<HTMLInputElement>) => {
     setNewIp(e.currentTarget.value)
@@ -20,33 +26,66 @@ export default function AddLamp() {
   }
 
   const handleCreateNewLamp = () => {
+    const errors: FormErrors = {}
+    if (newIp === null) {
+      errors.ip = "Ip address required"
+    } else {
+      const ip = parseInt(newIp, 10);
+      if (isNaN(ip) || ip > 255 || ip < 0) {
+        errors.ip = "Ip address must be a number between 0 and 255"
+      }
+    }
+
+    if (newName === '') {
+      errors.name = "Name is required"
+    }
+    setFormErrors(errors)
+
+    if (newIp === null || errors.ip || errors.name){
+      return;
+    }
+   
+
     const lamp = {
       name: newName,
     }
+
     dispatch(addLamp({ id: parseInt(newIp, 10), lamp }))
     navigate("/lamps")
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <h1>Add New Lamp</h1>
+      <Typography variant="h2">Add New Lamp</Typography>
       <div className="flex flex-col gap-2">
-        <div>Ip:</div>
         <div>
-          <Input value={newIp} onChange={handleNewIpChange} />
+          {/* Type bug?  Requireing me to add crossOrigin undefined... */}
+          <Input
+            error={!!formErrors.ip}
+            label="Last Octlet in IP:"
+            value={newIp || ''}
+            onChange={handleNewIpChange}
+            crossOrigin={undefined}
+          />
+          {!!formErrors.ip && (
+            <Typography variant="small" color="red">{formErrors.ip}</Typography>
+          )}
+        </div>
+        <div>
+          {/* Type bug?  Requireing me to add crossOrigin undefined... */}
+          <Input
+            error={!!formErrors.name}
+            label="Lamp Name:"
+            value={newName}
+            onChange={handleNewNameChange}
+            crossOrigin={undefined}
+          />
+          {!!formErrors.name && (
+            <Typography variant="small" color="red">{formErrors.name}</Typography>
+          )}
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        <div>Name:</div>
-        <div>
-          <Input value={newName} onChange={handleNewNameChange} />
-        </div>
-      </div>
-      <Button
-        variant="ghost"
-        color="success"
-        onClick={() => handleCreateNewLamp()}
-      >
+      <Button color="blue" onClick={() => handleCreateNewLamp()}>
         Add New Lamp
       </Button>
     </div>

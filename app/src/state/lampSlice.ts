@@ -6,12 +6,23 @@ export type Lamp = {
 }
 export type LampMap = { [ip: number]: Lamp }
 
-const DEFAULT: LampMap = {}
+const initalStateLoader = () => {
+  const lampStr = localStorage.getItem("lamps") || ""
+  try {
+    let lamps = JSON.parse(lampStr) as LampMap
+    return { value: lamps }
+  } catch (e) {
+    if (lampStr !== null) {
+      console.warn(`Could not parse string: ${lampStr}`)
+    }
+  }
+
+  return { value: {} as LampMap }
+}
+
 export const lampSlice = createSlice({
   name: "lamp",
-  initialState: {
-    value: DEFAULT,
-  },
+  initialState: initalStateLoader,
   reducers: {
     addLamp: (
       state,

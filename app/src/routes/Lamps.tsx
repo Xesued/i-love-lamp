@@ -43,7 +43,7 @@ export default function Config() {
         ))}
       </List>
 
-      <Button color="deep-purple" onClick={handleCreateNewLamp}>Add New Lamp</Button>
+      <Button color="blue" onClick={handleCreateNewLamp}>Add New Lamp</Button>
     </div>
   )
 }
