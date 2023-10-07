@@ -5,11 +5,12 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node -r tsconfig-paths/register server2.ts"
+    "start": "ts-node -r tsconfig-paths/register server.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@fastify/cors": "^8.4.0",
     "color-convert": "^2.0.1",
     "express": "^4.18.2",
     "fastify": "^4.23.2",

@@ -1,4 +1,4 @@
-import { AnimationItem, AnimationType } from "../../state/animationSlice"
+import { AnimationItem, AnimationType } from "engine/types"
 import { BlinkCard } from "./BlinkCard"
 
 type AnimationCardProps = {

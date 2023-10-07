@@ -1,13 +1,13 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 // import { HexColorPicker } from "react-colorful"
 // import { io } from "socket.io-client"
 import { Alert, Select, Option, Typography } from "@material-tailwind/react"
+import type { AnimationItem } from "engine/types"
 
 import { AnimationCard } from "../components/animations/AnimationCard"
 import { useAppSelector, useAppDispatch } from "../state/hooks"
 import { toggleLampAnimation } from "../state/lampSlice"
-import type { AnimationItem } from "../state/animationSlice"
 
 function App() {
   const lamps = useAppSelector((state) => state.lamps.value)
@@ -24,8 +24,37 @@ function App() {
   }
 
   const handleToggleAnimation = (animation: AnimationItem) => {
-    if (!selectedLampIp) {
-      return
+    if (!selectedLampIp) return
+
+    const lamp = lamps[selectedLampIp]
+    if (!lamp) return
+
+    // TODO: API is a fire-n-forget.  Next steps is to have it own
+    // the data for what animations are running on what devices.
+    // At that point, we will move to a more robust RTK Query
+    // api.  For now, just fire off a POST via fetch
+
+    if (!lamp.animations.includes(animation.name)) {
+      // We don't have that animation, it's going to be turned on..
+      // send an add animation to server
+      fetch(`http://127.0.0.1:3000/animations/${selectedLampIp}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(animation),
+      })
+    } else {
+      fetch(
+        `http://127.0.0.1:3000/animations/${selectedLampIp}/${animation.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(animation),
+        },
+      )
     }
 
     dispatch(

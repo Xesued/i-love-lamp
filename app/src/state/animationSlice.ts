@@ -1,33 +1,13 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
-import { RGBW } from "engine/types"
-
-export enum AnimationType {
-  BLINK,
-}
-
-export interface Animation {
-  name: string
-  type: AnimationType
-  startLed?: number
-  endLed?: number
-}
-
-export interface BlinkAnimation extends Animation {
-  type: AnimationType.BLINK
-  onColor: RGBW
-  onDuration: number
-  offColor: RGBW
-  offDuration: number
-  transition: number
-}
-
-export type AnimationItem = BlinkAnimation
+import { AnimationType } from "engine/types"
+import type { AnimationItem } from "engine/types"
 
 // TODO: Append more animations as they are added in.
 
 const initalStateLoader: () => { value: AnimationItem[] } = () => {
   const value: AnimationItem[] = [
     {
+      id: 1,
       name: "On/Off",
       type: AnimationType.BLINK,
       onColor: [255, 0, 0, 0],
@@ -60,15 +40,17 @@ export const animationsSlice = createSlice({
   initialState: initalStateLoader,
   reducers: {
     addAnimation: (state, action: PayloadAction<AnimationItem>) => {
-      const hasAnimation = state.value.find(a => a.name === action.payload.name)
+      const hasAnimation = state.value.find((a) => a.id === action.payload.id)
       if (hasAnimation) {
-        console.warn('Already have an animation by that name')
+        console.warn("Already have an animation by that name")
         return
       }
       state.value.push(action.payload)
     },
-    removeAnimation: (state, action: PayloadAction<string>) => {
-      const animationIndex = state.value.findIndex(a => a.name === action.payload)
+    removeAnimation: (state, action: PayloadAction<number>) => {
+      const animationIndex = state.value.findIndex(
+        (a) => a.id === action.payload,
+      )
       if (animationIndex < 0) {
         console.warn(`No animation by that name: ${action.payload}`)
         return

@@ -30,27 +30,26 @@ export default function AddLamp() {
     if (newIp === null) {
       errors.ip = "Ip address required"
     } else {
-      const ip = parseInt(newIp, 10);
+      const ip = parseInt(newIp, 10)
       if (isNaN(ip) || ip > 255 || ip < 0) {
         errors.ip = "Ip address must be a number between 0 and 255"
       }
     }
 
-    if (newName === '') {
+    if (newName === "") {
       errors.name = "Name is required"
     }
     setFormErrors(errors)
 
-    if (newIp === null || errors.ip || errors.name){
-      return;
+    if (newIp === null || errors.ip || errors.name) {
+      return
     }
-   
 
     const lamp = {
       name: newName,
     }
 
-    dispatch(addLamp({ id: parseInt(newIp, 11), lamp }))
+    dispatch(addLamp({ id: parseInt(newIp, 10), lamp }))
     navigate("/lamps")
   }
 
@@ -63,12 +62,14 @@ export default function AddLamp() {
           <Input
             error={!!formErrors.ip}
             label="Last Octlet in IP:"
-            value={newIp || ''}
+            value={newIp || ""}
             onChange={handleNewIpChange}
             crossOrigin={undefined}
           />
           {!!formErrors.ip && (
-            <Typography variant="small" color="red">{formErrors.ip}</Typography>
+            <Typography variant="small" color="red">
+              {formErrors.ip}
+            </Typography>
           )}
         </div>
         <div>
@@ -81,7 +82,9 @@ export default function AddLamp() {
             crossOrigin={undefined}
           />
           {!!formErrors.name && (
-            <Typography variant="small" color="red">{formErrors.name}</Typography>
+            <Typography variant="small" color="red">
+              {formErrors.name}
+            </Typography>
           )}
         </div>
       </div>
