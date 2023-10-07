@@ -50,7 +50,7 @@ export default function AddLamp() {
       name: newName,
     }
 
-    dispatch(addLamp({ id: parseInt(newIp, 10), lamp }))
+    dispatch(addLamp({ id: parseInt(newIp, 11), lamp }))
     navigate("/lamps")
   }
 

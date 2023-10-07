@@ -2,7 +2,9 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 
 export type Lamp = {
   name: string
-  isActive: boolean
+  // TODO: Keying off a name is odd, but works for my
+  // simple use case.
+  animations: string[]
 }
 export type LampMap = { [ip: number]: Lamp }
 
@@ -21,7 +23,7 @@ const initalStateLoader = () => {
 }
 
 export const lampSlice = createSlice({
-  name: "lamp",
+  name: "lamps",
   initialState: initalStateLoader,
   reducers: {
     addLamp: (
@@ -30,20 +32,29 @@ export const lampSlice = createSlice({
     ) => {
       state.value[action.payload.id] = {
         ...action.payload.lamp,
-        isActive: false,
+        animations: [],
       }
     },
     removeLamp: (state, action: PayloadAction<number>) => {
       delete state.value[action.payload]
     },
-    toggleLamp: (state, action: PayloadAction<number>) => {
-      const ip = action.payload
-      if (state.value[ip]) {
-        state.value[ip].isActive = !state.value[ip].isActive
+    toggleLampAnimation: (
+      state,
+      action: PayloadAction<{ ip: number; animationName: string }>,
+    ) => {
+      const { ip, animationName } = action.payload
+      const animationIndex = state.value[ip]?.animations.findIndex(
+        (an) => an === animationName,
+      )
+
+      if (animationIndex > -1) {
+        state.value[ip].animations.splice(animationIndex, 1)
+      } else {
+        state.value[ip].animations.push(animationName)
       }
     },
   },
 })
 
-export const { addLamp, removeLamp, toggleLamp } = lampSlice.actions
+export const { addLamp, removeLamp, toggleLampAnimation } = lampSlice.actions
 export default lampSlice.reducer

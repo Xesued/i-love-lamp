@@ -1,71 +1,71 @@
-import { useState, useEffect } from "react"
-import { HexColorPicker } from "react-colorful"
-import { io } from "socket.io-client"
-import { Button, Alert } from "@material-tailwind/react"
-
-import { useAppSelector, useAppDispatch } from "../state/hooks"
-import { toggleLamp } from "../state/lampSlice"
+import { useState } from "react"
 import { Link } from "react-router-dom"
+// import { HexColorPicker } from "react-colorful"
+// import { io } from "socket.io-client"
+import { Alert, Select, Option, Typography } from "@material-tailwind/react"
+
+import { AnimationCard } from "../components/animations/AnimationCard"
+import { useAppSelector, useAppDispatch } from "../state/hooks"
+import { toggleLampAnimation } from "../state/lampSlice"
+import type { AnimationItem } from "../state/animationSlice"
 
 function App() {
-  const socket = io("http://192.168.12.209:3000")
   const lamps = useAppSelector((state) => state.lamps.value)
+  const animations = useAppSelector((state) => state.animations.value)
+  const [selectedLampIp, setSelectedLampIp] = useState<number | null>(null)
   const dispatch = useAppDispatch()
-  const [color, setColor] = useState("aabbcc")
-  const [isConnected, setIsConnected] = useState(socket.connected)
 
-  useEffect(() => {
-    if (!isConnected) return
-    console.log("Sending color", color)
-    socket.emit("color-change", color)
-  }, [isConnected, color])
-
-  useEffect(() => {
-    function onConnect() {
-      setIsConnected(true)
+  const handleSelectLamp = (ipStr: string | undefined) => {
+    const ip = parseInt(ipStr || "", 10)
+    if (isNaN(ip)) {
+      console.warn(`Could not update ip: ${ipStr}`)
     }
-
-    function onDisconnect() {
-      setIsConnected(false)
-    }
-
-    socket.on("connect", onConnect)
-    socket.on("disconnect", onDisconnect)
-
-    return () => {
-      socket.off("connect", onConnect)
-      socket.off("disconnect", onDisconnect)
-    }
-  }, [])
-
-  const handleSelectLamp = (ip: number) => {
-    dispatch(toggleLamp(ip))
+    setSelectedLampIp(ip)
   }
+
+  const handleToggleAnimation = (animation: AnimationItem) => {
+    if (!selectedLampIp) {
+      return
+    }
+
+    dispatch(
+      toggleLampAnimation({
+        ip: selectedLampIp,
+        animationName: animation.name,
+      }),
+    )
+  }
+
+  const hasLamps = Object.keys(lamps).length > 0
+  const selectedLamp = selectedLampIp ? lamps[selectedLampIp] : null
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
-        <h2>Selected Lamps</h2>
-        <ul className="flex flex-row align-middle gap-4">
-          {Object.keys(lamps).length === 0 && (
-            <Alert color="red">
-                No lamps. <Link to="add-lamp">Add one.</Link>
-            </Alert>
-          )}
-          {Object.entries(lamps).map(([ip, lamp]) => (
-            <li>
-              <Button
-                variant={lamp.isActive ? "filled" : "outlined"}
-                onClick={() => handleSelectLamp(parseInt(ip))}
-              >
-                {lamp.name}
-              </Button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="flex-1 color-picker">
-        <HexColorPicker color={color} onChange={setColor} />
+        {hasLamps ? (
+          <Select label="Selected Lamp" onChange={handleSelectLamp}>
+            {Object.entries(lamps).map(([ip, lamp]) => (
+              <Option value={ip}>{lamp.name}</Option>
+            ))}
+          </Select>
+        ) : (
+          <Alert color="red">
+            No lamps. <Link to="add-lamp">Add one.</Link>
+          </Alert>
+        )}
+
+        {selectedLamp && (
+          <div>
+            <Typography variant="h3">Lamp Animations</Typography>
+            {animations.map((animation) => (
+              <AnimationCard
+                onClick={() => handleToggleAnimation(animation)}
+                animation={animation}
+                isActive={selectedLamp.animations.includes(animation.name)}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

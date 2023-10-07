@@ -7,7 +7,8 @@ import { Provider } from "react-redux"
 import App from "./routes/App"
 import Lamps from "./routes/Lamps"
 import AddLamp from "./routes/AddLamp"
-import Animation from "./routes/Animation"
+import Animations from "./routes/Animations"
+import TestAnimations from "./routes/TestAnimations"
 import Root from "./routes/Root.tsx"
 
 import { ThemeProvider } from "@material-tailwind/react";
@@ -27,8 +28,8 @@ const router = createBrowserRouter([
         element: <App />,
       },
       {
-        path: "/animation",
-        element: <Animation />,
+        path: "/animations",
+        element: <Animations />,
         errorElement: <ErrorPage />,
       },
       {
@@ -39,6 +40,11 @@ const router = createBrowserRouter([
       {
         path: "/add-lamp",
         element: <AddLamp />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "/test",
+        element: <TestAnimations />,
         errorElement: <ErrorPage />,
       },
     ],

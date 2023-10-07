@@ -35,9 +35,10 @@ export function StickyNavbar() {
 
   const navList = (
     <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
-      <SimpleLink to="/" linkName="Colors" />
+      <SimpleLink to="/" linkName="Home" />
+      <SimpleLink to="/animations" linkName="Animations" />
       <SimpleLink to="/lamps" linkName="Lamps" />
-      <SimpleLink to="/animation" linkName="Test" />
+      <SimpleLink to="/test" linkName="Test" />
     </ul>
   )
 
