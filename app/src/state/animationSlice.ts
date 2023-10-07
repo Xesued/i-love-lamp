@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { AnimationType } from "engine/types"
+import * as colors from "engine/colors"
 import type { AnimationItem } from "engine/types"
 
 // TODO: Append more animations as they are added in.
@@ -8,6 +9,30 @@ const initalStateLoader: () => { value: AnimationItem[] } = () => {
   const value: AnimationItem[] = [
     {
       id: 1,
+      name: "Bottom Slow",
+      type: AnimationType.BLINK,
+      onColor: [...colors.AMBER, 0],
+      onDuration: 2000,
+      offColor: [0, 0, 0, 0],
+      offDuration: 2000,
+      transition: 500,
+      startLed: 0,
+      endLed: 15,
+    },
+    {
+      id: 2,
+      name: "Top Fast",
+      type: AnimationType.BLINK,
+      onColor: [...colors.AQUA, 0],
+      onDuration: 50,
+      offColor: [...colors.GOLD, 0],
+      offDuration: 50,
+      transition: 100,
+      startLed: 45,
+      endLed: 59,
+    },
+    {
+      id: 3,
       name: "On/Off",
       type: AnimationType.BLINK,
       onColor: [255, 0, 0, 0],
