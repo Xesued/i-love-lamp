@@ -3,8 +3,7 @@ import { AnimationType } from "engine/types"
 import * as colors from "engine/colors"
 import type { AnimationItem } from "engine/types"
 
-// TODO: Append more animations as they are added in.
-
+// TODO: Right now, only hard-coded animations.
 const initalStateLoader: () => { value: AnimationItem[] } = () => {
   const value: AnimationItem[] = [
     {
@@ -29,17 +28,25 @@ const initalStateLoader: () => { value: AnimationItem[] } = () => {
       offDuration: 50,
       transition: 100,
       startLed: 45,
-      endLed: 59,
     },
     {
       id: 3,
-      name: "On/Off",
+      name: "Red Alert",
       type: AnimationType.BLINK,
       onColor: [255, 0, 0, 0],
       onDuration: 100,
       offColor: [0, 0, 0, 0],
       offDuration: 100,
       transition: 100,
+    },
+    {
+      id: 4,
+      name: "Night Rider",
+      type: AnimationType.BOUNCE,
+      color: [255, 0, 0, 0],
+      startLed: 0,
+      endLed: 30,
+      speed: 20,
     },
   ]
 

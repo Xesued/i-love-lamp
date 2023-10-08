@@ -13,9 +13,10 @@ export type ColorGeneratorFunc = (
   opts: ColorGeneratorOptions
 ) => Generator<LedMap>
 
-
 export enum AnimationType {
   BLINK,
+  BOUNCE,
+  SOLID,
 }
 
 export interface Animation {
@@ -35,4 +36,15 @@ export interface BlinkAnimation extends Animation {
   transition: number
 }
 
-export type AnimationItem = BlinkAnimation
+export interface BounceAnimation extends Animation {
+  type: AnimationType.BOUNCE
+  color: RGBW
+  speed: number
+}
+
+export interface SolidAnimation extends Animation {
+  type: AnimationType.SOLID
+  color: RGBW
+}
+
+export type AnimationItem = BlinkAnimation | BounceAnimation

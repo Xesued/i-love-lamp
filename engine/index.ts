@@ -69,6 +69,15 @@ export class ColorEngine {
         })
       }
 
+      case AnimationType.BOUNCE: {
+        return Animations.bounce({
+          startLed: animationDef.startLed || 0,
+          endLed: animationDef.endLed || numOfLeds - 1,
+          speed: animationDef.speed,
+          color: animationDef.color,
+        })
+      }
+
       default:
         return null
     }
