@@ -5,7 +5,7 @@ import type {
   LedMap,
 } from "../types"
 
-type SolidOptions = {
+export type SolidOptions = {
   /**
    * The index of the LEDs we want to control
    */

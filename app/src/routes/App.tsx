@@ -37,6 +37,7 @@ function App() {
     if (!lamp.animations.includes(animation.name)) {
       // We don't have that animation, it's going to be turned on..
       // send an add animation to server
+      // TODO: Configure Server IP/PORT
       fetch(`http://192.168.12.209:3000/animations/${selectedLampIp}`, {
         method: "POST",
         headers: {

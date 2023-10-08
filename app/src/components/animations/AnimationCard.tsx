@@ -1,5 +1,7 @@
 import { AnimationItem, AnimationType } from "engine/types"
 import { BlinkCard } from "./BlinkCard"
+import { SolidCard } from "./SolidCard"
+import { BounceCard } from "./Bounce"
 
 type AnimationCardProps = {
   animation: AnimationItem
@@ -8,13 +10,17 @@ type AnimationCardProps = {
 }
 
 export function AnimationCard(props: AnimationCardProps) {
-  const { animation } = props
+  const { animation, ...rest } = props
 
   switch (animation.type) {
     case AnimationType.BLINK: {
-      return <BlinkCard {...props} />
+      return <BlinkCard animation={animation} {...rest} />
     }
-    default:
-      return <div>Unknown animation: {animation.type}</div>
+    // case AnimationType.SOLID: {
+    //   return <SolidCard animation={animation} {...rest} />
+    // }
+    case AnimationType.BOUNCE: {
+      return <BounceCard animation={animation} {...rest} />
+    }
   }
 }
