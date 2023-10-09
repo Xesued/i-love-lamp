@@ -28,7 +28,7 @@ function getLeds(
  *
  */
 export class ColorEngine {
-  private _animations: Map<number, Generator<LedMap>> = new Map()
+  private _animations: Map<string, Generator<LedMap>> = new Map()
   private _interval: any = null
   private _delayMs: number = 32
   private _numOfLeds: number
@@ -39,7 +39,7 @@ export class ColorEngine {
     this._blankLeds = Array(leds).fill([0, 0, 0, 0])
   }
 
-  addAnimation(id: number, animationFunc: ColorGeneratorFunc) {
+  addAnimation(id: string, animationFunc: ColorGeneratorFunc) {
     const animation = animationFunc({
       numOfLeds: this._numOfLeds,
       tickMs: this._delayMs,
@@ -47,7 +47,7 @@ export class ColorEngine {
     this._animations.set(id, animation)
   }
 
-  removeAnimation(id: number) {
+  removeAnimation(id: string) {
     this._animations.delete(id)
   }
 
@@ -83,12 +83,8 @@ export class ColorEngine {
     }
   }
 
-  /**
-   * Start creating the colors
-   */
   run(cb: (colors: RGBW[]) => void) {
     this._interval = setInterval(() => {
-      const start = Date.now()
       const rgbwMap: LedMap = {}
       this._animations.forEach((a) => {
         const { value, done } = a.next()
@@ -100,12 +96,13 @@ export class ColorEngine {
         }
       })
 
-      // Make sure to fill any wholes.
+      // Make sure to fill any holes.
       const finalRGBW = this._blankLeds.map((l, i) => {
         const rbgw = rgbwMap[i]
         if (rbgw) return rbgw
         return l
       })
+
       cb(finalRGBW)
     }, this._delayMs)
   }

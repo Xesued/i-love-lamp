@@ -16,9 +16,9 @@ export function AnimationCard(props: AnimationCardProps) {
     case AnimationType.BLINK: {
       return <BlinkCard animation={animation} {...rest} />
     }
-    // case AnimationType.SOLID: {
-    //   return <SolidCard animation={animation} {...rest} />
-    // }
+    case AnimationType.SOLID: {
+      return <SolidCard animation={animation} {...rest} />
+    }
     case AnimationType.BOUNCE: {
       return <BounceCard animation={animation} {...rest} />
     }

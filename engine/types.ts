@@ -20,7 +20,7 @@ export enum AnimationType {
 }
 
 export interface Animation {
-  id: number
+  id: string
   name: string
   type: AnimationType
   startLed?: number
@@ -47,4 +47,4 @@ export interface SolidAnimation extends Animation {
   color: RGBW
 }
 
-export type AnimationItem = BlinkAnimation | BounceAnimation
+export type AnimationItem = BlinkAnimation | BounceAnimation | SolidAnimation

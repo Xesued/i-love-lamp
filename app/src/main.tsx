@@ -8,10 +8,11 @@ import App from "./routes/App"
 import Lamps from "./routes/Lamps"
 import AddLamp from "./routes/AddLamp"
 import Animations from "./routes/Animations"
+import AddAnimation from "./routes/AddAnimation"
 import TestAnimations from "./routes/TestAnimations"
 import Root from "./routes/Root.tsx"
 
-import { ThemeProvider } from "@material-tailwind/react";
+import { ThemeProvider } from "@material-tailwind/react"
 
 import ErrorPage from "./error-page"
 
@@ -28,22 +29,31 @@ const router = createBrowserRouter([
         element: <App />,
       },
       {
-        path: "/animations",
-        element: <Animations />,
+        path: "animations",
         errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <Animations />,
+          },
+          {
+            path: "new",
+            element: <AddAnimation />,
+          },
+        ],
       },
       {
-        path: "/lamps",
+        path: "lamps",
         element: <Lamps />,
         errorElement: <ErrorPage />,
       },
       {
-        path: "/add-lamp",
+        path: "add-lamp",
         element: <AddLamp />,
         errorElement: <ErrorPage />,
       },
       {
-        path: "/test",
+        path: "test",
         element: <TestAnimations />,
         errorElement: <ErrorPage />,
       },
