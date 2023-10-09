@@ -1,93 +1,73 @@
-import { useState } from "react"
-import { Button, Input, Typography } from "@material-tailwind/react"
+import { ReactEventHandler, useState } from "react"
+import {
+  Button,
+  Input,
+  Select,
+  Option,
+  Typography,
+} from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
+import { Animation, AnimationItem, AnimationType } from "engine/types"
 
-import { addLamp } from "../state/lampSlice"
+import { addAnimation } from "../state/animationSlice"
 import { useAppDispatch } from "../state/hooks"
-
-type FormErrors = {
-  ip?: string
-  name?: string
-}
+import { AddBounceAnimation } from "../components/animations/AddBounceAnimation"
 
 export default function AddAnimation() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const [newIp, setNewIp] = useState<string | null>("")
-  const [newName, setNewName] = useState("")
-  const [formErrors, setFormErrors] = useState<FormErrors>({})
+  const [type, setType] = useState<AnimationType | null>(null)
 
-  const handleNewIpChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setNewIp(e.currentTarget.value)
+  const handleSelectAnimationType = (value: string | undefined) => {
+    if (!value) return
+    const v = parseInt(value)
+    if (isNaN(v)) return
+
+    switch (v) {
+      case AnimationType.BLINK:
+        setType(AnimationType.BLINK)
+        break
+      case AnimationType.BOUNCE:
+        setType(AnimationType.BOUNCE)
+        break
+      case AnimationType.SOLID:
+        setType(AnimationType.SOLID)
+        break
+      default:
+        setType(null)
+    }
   }
 
-  const handleNewNameChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setNewName(e.currentTarget.value)
-  }
-
-  const handleCreateNewLamp = () => {
-    const errors: FormErrors = {}
-    if (newIp === null) {
-      errors.ip = "Ip address required"
-    } else {
-      const ip = parseInt(newIp, 10);
-      if (isNaN(ip) || ip > 255 || ip < 0) {
-        errors.ip = "Ip address must be a number between 0 and 255"
-      }
-    }
-
-    if (newName === '') {
-      errors.name = "Name is required"
-    }
-    setFormErrors(errors)
-
-    if (newIp === null || errors.ip || errors.name){
-      return;
-    }
-   
-
-    const lamp = {
-      name: newName,
-    }
-
-    dispatch(addLamp({ id: parseInt(newIp, 11), lamp }))
-    navigate("/lamps")
+  const handleAddAnimation = (opts: AnimationItem) => {
+    dispatch(addAnimation(opts))
+    navigate("/animations")
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <Typography variant="h2">Add New Lamp</Typography>
+      <Typography variant="h2">Add New Animation</Typography>
       <div className="flex flex-col gap-2">
         <div>
-          {/* Type bug?  Requireing me to add crossOrigin undefined... */}
-          <Input
-            error={!!formErrors.ip}
-            label="Last Octlet in IP:"
-            value={newIp || ''}
-            onChange={handleNewIpChange}
-            crossOrigin={undefined}
-          />
-          {!!formErrors.ip && (
-            <Typography variant="small" color="red">{formErrors.ip}</Typography>
-          )}
+          <Select onChange={handleSelectAnimationType}>
+            <Option value={"" + AnimationType.BLINK}>
+              {AnimationType[AnimationType.BLINK]}
+            </Option>
+            <Option value={"" + AnimationType.BOUNCE}>
+              {AnimationType[AnimationType.BOUNCE]}
+            </Option>
+            <Option value={"" + AnimationType.SOLID}>
+              {AnimationType[AnimationType.SOLID]}
+            </Option>
+          </Select>
         </div>
         <div>
-          {/* Type bug?  Requireing me to add crossOrigin undefined... */}
-          <Input
-            error={!!formErrors.name}
-            label="Lamp Name:"
-            value={newName}
-            onChange={handleNewNameChange}
-            crossOrigin={undefined}
-          />
-          {!!formErrors.name && (
-            <Typography variant="small" color="red">{formErrors.name}</Typography>
+          {type === AnimationType.BLINK && <div>Show ??blink form</div>}
+          {type === AnimationType.BOUNCE && (
+            <AddBounceAnimation onAdd={handleAddAnimation} />
           )}
+          {type === AnimationType.SOLID && <div>Show solid form</div>}
         </div>
       </div>
-      <Button color="blue" onClick={() => handleCreateNewLamp()}>
-        Add New Lamp
-      </Button>
     </div>
   )
 }

@@ -44,7 +44,7 @@ async function startServer() {
       animationId: string
     }
     if (animationId) {
-      engines[parseInt(ip)]?.removeAnimation(parseInt(animationId))
+      engines[parseInt(ip)]?.removeAnimation(animationId)
       return { message: "Animation removed" }
     }
 

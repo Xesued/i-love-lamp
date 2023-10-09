@@ -7,7 +7,7 @@ import type { AnimationItem } from "engine/types"
 const initalStateLoader: () => { value: AnimationItem[] } = () => {
   const value: AnimationItem[] = [
     {
-      id: 1,
+      id: "123",
       name: "Bottom Slow",
       type: AnimationType.BLINK,
       onColor: [...colors.AMBER, 0],
@@ -19,7 +19,7 @@ const initalStateLoader: () => { value: AnimationItem[] } = () => {
       endLed: 15,
     },
     {
-      id: 2,
+      id: "234",
       name: "Top Fast",
       type: AnimationType.BLINK,
       onColor: [...colors.AQUA, 0],
@@ -30,7 +30,7 @@ const initalStateLoader: () => { value: AnimationItem[] } = () => {
       startLed: 45,
     },
     {
-      id: 3,
+      id: "345",
       name: "Red Alert",
       type: AnimationType.BLINK,
       onColor: [255, 0, 0, 0],
@@ -40,7 +40,7 @@ const initalStateLoader: () => { value: AnimationItem[] } = () => {
       transition: 100,
     },
     {
-      id: 4,
+      id: "456",
       name: "Night Rider",
       type: AnimationType.BOUNCE,
       color: [255, 0, 0, 0],
@@ -74,17 +74,17 @@ export const animationsSlice = createSlice({
     addAnimation: (state, action: PayloadAction<AnimationItem>) => {
       const hasAnimation = state.value.find((a) => a.id === action.payload.id)
       if (hasAnimation) {
-        console.warn("Already have an animation by that name")
+        console.warn("Already have that animation")
         return
       }
       state.value.push(action.payload)
     },
-    removeAnimation: (state, action: PayloadAction<number>) => {
+    removeAnimation: (state, action: PayloadAction<string>) => {
       const animationIndex = state.value.findIndex(
         (a) => a.id === action.payload,
       )
       if (animationIndex < 0) {
-        console.warn(`No animation by that name: ${action.payload}`)
+        console.warn("No animation with id: ", action.payload)
         return
       }
       state.value.splice(animationIndex, 1)
