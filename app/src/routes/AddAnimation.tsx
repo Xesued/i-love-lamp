@@ -1,17 +1,11 @@
-import { ReactEventHandler, useState } from "react"
-import {
-  Button,
-  Input,
-  Select,
-  Option,
-  Typography,
-} from "@material-tailwind/react"
+import { useState } from "react"
+import { Select, Option, Typography } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
-import { Animation, AnimationItem, AnimationType } from "engine/types"
+import { AnimationItem, AnimationType } from "engine/types"
 
 import { addAnimation } from "../state/animationSlice"
 import { useAppDispatch } from "../state/hooks"
-import { AddBounceAnimation } from "../components/animations/AddBounceAnimation"
+import { EditBounceAnimation } from "../components/animations/EditBounceAnimation"
 
 export default function AddAnimation() {
   const dispatch = useAppDispatch()
@@ -20,10 +14,8 @@ export default function AddAnimation() {
 
   const handleSelectAnimationType = (value: string | undefined) => {
     if (!value) return
-    const v = parseInt(value)
-    if (isNaN(v)) return
 
-    switch (v) {
+    switch (value) {
       case AnimationType.BLINK:
         setType(AnimationType.BLINK)
         break
@@ -49,21 +41,15 @@ export default function AddAnimation() {
       <div className="flex flex-col gap-2">
         <div>
           <Select onChange={handleSelectAnimationType}>
-            <Option value={"" + AnimationType.BLINK}>
-              {AnimationType[AnimationType.BLINK]}
-            </Option>
-            <Option value={"" + AnimationType.BOUNCE}>
-              {AnimationType[AnimationType.BOUNCE]}
-            </Option>
-            <Option value={"" + AnimationType.SOLID}>
-              {AnimationType[AnimationType.SOLID]}
-            </Option>
+            <Option value={AnimationType.BLINK}>{AnimationType.BLINK}</Option>
+            <Option value={AnimationType.BOUNCE}>{AnimationType.BOUNCE}</Option>
+            <Option value={AnimationType.SOLID}>{AnimationType.SOLID}</Option>
           </Select>
         </div>
         <div>
           {type === AnimationType.BLINK && <div>Show ??blink form</div>}
           {type === AnimationType.BOUNCE && (
-            <AddBounceAnimation onAdd={handleAddAnimation} />
+            <EditBounceAnimation onSubmit={handleAddAnimation} />
           )}
           {type === AnimationType.SOLID && <div>Show solid form</div>}
         </div>

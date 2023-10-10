@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react"
 import type { ChangeEvent } from "react"
 import { AnimationType, BounceAnimation } from "engine/types"
-import { rgbToRgbw } from "engine/utils"
+import { rgbToRgbw, rgbwToRgb } from "engine/utils"
 import { Button, Input } from "@material-tailwind/react"
 import convert from "color-convert"
 import { v1 as uuidv1 } from "uuid"
+import { ColorPickerInput } from "../ColorPickerInput"
 
 type BounceFormProps = {
-  onAdd: (opts: BounceAnimation) => void
+  // If we are editing, supply a bounce object
+  bounceToEdit?: BounceAnimation
+  onSubmit: (opts: BounceAnimation) => void
 }
 
 type BounceFormOpts = {
@@ -19,8 +22,9 @@ type BounceFormOpts = {
   startLed?: number
 }
 
-export function AddBounceAnimation(props: BounceFormProps) {
-  const { onAdd } = props
+export function EditBounceAnimation(props: BounceFormProps) {
+  const { onSubmit, bounceToEdit } = props
+
   const [opts, setOpts] = useState<BounceFormOpts>({
     color: "",
     id: uuidv1(),
@@ -30,6 +34,19 @@ export function AddBounceAnimation(props: BounceFormProps) {
     startLed: undefined,
   })
 
+  useEffect(() => {
+    if (bounceToEdit) {
+      setOpts({
+        id: bounceToEdit.id,
+        name: bounceToEdit.name,
+        color: convert.rgb.hex(rgbwToRgb(bounceToEdit.color)),
+        speed: bounceToEdit.speed,
+        endLed: bounceToEdit.endLed,
+        startLed: bounceToEdit.endLed,
+      })
+    }
+  }, [bounceToEdit])
+
   const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     const name = event.currentTarget.value
     setOpts({
@@ -38,8 +55,7 @@ export function AddBounceAnimation(props: BounceFormProps) {
     })
   }
 
-  const handleColorChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const color = event.currentTarget.value
+  const handleColorChange = (color: string) => {
     setOpts({
       ...opts,
       color,
@@ -82,7 +98,7 @@ export function AddBounceAnimation(props: BounceFormProps) {
       startLed: opts.startLed,
     }
 
-    onAdd(bounceOpts)
+    onSubmit(bounceOpts)
   }
 
   return (
@@ -93,12 +109,11 @@ export function AddBounceAnimation(props: BounceFormProps) {
         onChange={handleNameChange}
         crossOrigin={undefined}
       ></Input>
-      <Input
+      <ColorPickerInput
         label="Color"
         value={opts.color}
         onChange={handleColorChange}
-        crossOrigin={undefined}
-      ></Input>
+      />
       <Input
         label="Speed"
         value={opts.speed}
@@ -118,7 +133,7 @@ export function AddBounceAnimation(props: BounceFormProps) {
         crossOrigin={undefined}
       ></Input>
       <Button color="blue" onClick={handleAdd}>
-        Add New Lamp
+        {bounceToEdit ? "Edit" : "Add"} Animation
       </Button>
     </div>
   )

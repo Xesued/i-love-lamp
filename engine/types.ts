@@ -14,9 +14,9 @@ export type ColorGeneratorFunc = (
 ) => Generator<LedMap>
 
 export enum AnimationType {
-  BLINK,
-  BOUNCE,
-  SOLID,
+  BLINK = "Blink",
+  BOUNCE = "Bounce",
+  SOLID = "Solid",
 }
 
 export interface Animation {

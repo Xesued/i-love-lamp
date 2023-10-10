@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom"
-// import { HexColorPicker } from "react-colorful"
-// import { io } from "socket.io-client"
 import { Alert, Select, Option, Typography } from "@material-tailwind/react"
 import type { AnimationItem } from "engine/types"
 
