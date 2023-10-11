@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom"
-// import { HexColorPicker } from "react-colorful"
-// import { io } from "socket.io-client"
 import { Alert, Select, Option, Typography } from "@material-tailwind/react"
 import type { AnimationItem } from "engine/types"
 
 import { AnimationCard } from "../components/animations/AnimationCard"
 import { useAppSelector, useAppDispatch } from "../state/hooks"
 import { toggleLampAnimation } from "../state/lampSlice"
+
+const API_URL = import.meta.env.VITE_API_URL
 
 function App() {
   const lamps = useAppSelector((state) => state.lamps.value)
@@ -37,8 +37,7 @@ function App() {
     if (!lamp.animations.includes(animation.name)) {
       // We don't have that animation, it's going to be turned on..
       // send an add animation to server
-      // TODO: Configure Server IP/PORT
-      fetch(`http://192.168.12.209:3000/animations/${selectedLampIp}`, {
+      fetch(`${API_URL}/animations/${selectedLampIp}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,16 +45,13 @@ function App() {
         body: JSON.stringify(animation),
       })
     } else {
-      fetch(
-        `http://192.168.12.209:3000/animations/${selectedLampIp}/${animation.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(animation),
+      fetch(`${API_URL}/animations/${selectedLampIp}/${animation.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
         },
-      )
+        body: JSON.stringify(animation),
+      })
     }
 
     dispatch(

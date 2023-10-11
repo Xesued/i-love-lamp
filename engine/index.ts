@@ -78,12 +78,23 @@ export class ColorEngine {
         })
       }
 
+      case AnimationType.SOLID: {
+        return Animations.solid({
+          leds: getLeds(0, numOfLeds - 1, numOfLeds),
+          color: animationDef.color,
+        })
+      }
+
       default:
         return null
     }
   }
 
   run(cb: (colors: RGBW[]) => void) {
+    if (this._interval) {
+      console.warn("Already running...")
+    }
+
     this._interval = setInterval(() => {
       const rgbwMap: LedMap = {}
       this._animations.forEach((a) => {

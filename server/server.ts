@@ -1,3 +1,5 @@
+import fs from "fs"
+import path from "path"
 import Fastify from "fastify"
 import cors from "@fastify/cors"
 
@@ -6,13 +8,20 @@ import type { AnimationItem } from "engine/types"
 import { buildColorSender } from "./colorPusher"
 
 const LED_COUNT = 60
-const LED_PORT = 50222
-const LED_IP = "192.168.12.199"
-
 const engines: ColorEngine[] = []
 
 async function startServer() {
-  const fastify = Fastify({ logger: true })
+  const fastify = Fastify({
+    logger: true,
+    https: {
+      key: fs.readFileSync(
+        path.join(__dirname, "./_wildcard.hell-fire.local+4-key.pem")
+      ),
+      cert: fs.readFileSync(
+        path.join(__dirname, "./_wildcard.hell-fire.local+4.pem")
+      ),
+    },
+  })
   await fastify.register(cors, {
     allowedHeaders: "*",
     origin: "*",

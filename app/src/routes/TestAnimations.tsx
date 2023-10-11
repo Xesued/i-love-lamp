@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Input } from "@material-tailwind/react"
 
 import { ColorEngine } from "engine"
@@ -7,14 +7,11 @@ import { solid } from "engine/animations/solid"
 import { RGBW } from "engine/types"
 import * as colors from "engine/colors"
 
-import { ledToRGB } from "../utils/colorUtils";
+import { ledToRGB } from "../utils/colorUtils"
 
 export default function Animation() {
   const [numOfPixels, setNumOfPixels] = useState(6)
-  const [numOfSolidPixels, setNumOfSolidPixels] = useState(3)
   const [leds, setLeds] = useState<RGBW[]>([])
-
-  const solidAnimation = useRef()
 
   useEffect(() => {
     const empty = Array(numOfPixels).fill(colors.RED)
@@ -23,6 +20,7 @@ export default function Animation() {
 
     const engine = new ColorEngine(numOfPixels)
     engine.addAnimation(
+      "123213",
       blink({
         leds: Array.from(Array(numOfPixels).keys()),
         offDurationMs: 1000,
@@ -58,6 +56,7 @@ export default function Animation() {
     }, 100)
 
     engine.addAnimation(
+      "1123141h4kljA",
       solid({
         leds: Array.from(Array(numOfPixels).keys()).filter(
           (i) => i > numOfPixels / 2,
@@ -81,18 +80,8 @@ export default function Animation() {
       <div className="flex gap-2 bg-danger-900">
         <Input
           label="Num of Pixels"
-
           crossOrigin={undefined}
           onChange={(e) => setNumOfPixels(parseInt(e.currentTarget.value, 10))}
-        />
-      </div>
-      <div className="flex gap-2 bg-danger-900">
-        <Input
-          label="Num of solid pixels"
-          crossOrigin={undefined}
-          onChange={(e) =>
-            setNumOfSolidPixels(parseInt(e.currentTarget.value, 10))
-          }
         />
       </div>
       <div>
