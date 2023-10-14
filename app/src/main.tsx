@@ -40,6 +40,13 @@ const router = createBrowserRouter([
             path: "new",
             element: <AddAnimation />,
           },
+          {
+            path: "edit/:id",
+            loader: ({ params }) => {
+              return params
+            },
+            element: <AddAnimation />,
+          },
         ],
       },
       {
