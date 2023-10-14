@@ -7,7 +7,6 @@ import { buildColorSender } from "./colorPusher"
 
 const LED_COUNT = 60
 const LED_PORT = 50222
-const LED_IP = "192.168.12.199"
 
 const engines: ColorEngine[] = []
 

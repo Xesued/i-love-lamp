@@ -10,8 +10,8 @@ export function buildColorSender(maxLeds: number, ip: number) {
   return (leds: RGBW[]) => {
     let buff = Buffer.alloc(maxLeds * 4)
     leds.forEach((led, i) => {
-      buff.set([led[0], led[1], led[2], led[3]], i * 4)
-      // buff.set(led, i * 4)
+      // buff.set([led[0], led[1], led[2], led[3]], i * 4)
+      buff.set(led, i * 4)
     })
 
     client.send(buff, LED_PORT, fullIp, (error) => {
