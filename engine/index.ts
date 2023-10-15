@@ -7,6 +7,7 @@ import {
 } from "./types"
 
 import * as Animations from "./animations"
+import { Lamp } from "../server/src/models/lamp"
 
 function getLeds(
   start: number | undefined,
@@ -25,23 +26,22 @@ function getLeds(
  * Color animations are controlled by a list of generators
  * that let the engine know what leds need to be what color.
  *
- *
  */
 export class ColorEngine {
+  private _lamp: Lamp
   private _animations: Map<string, Generator<LedMap>> = new Map()
   private _interval: any = null
   private _delayMs: number = 32
-  private _numOfLeds: number
   private _blankLeds: RGBW[]
 
-  constructor(leds: number) {
-    this._numOfLeds = leds
-    this._blankLeds = Array(leds).fill([0, 0, 0, 0])
+  constructor(device: Lamp) {
+    this._lamp = device
+    this._blankLeds = Array(this._lamp.num_of_leds).fill([0, 0, 0, 0])
   }
 
   addAnimation(id: string, animationFunc: ColorGeneratorFunc) {
     const animation = animationFunc({
-      numOfLeds: this._numOfLeds,
+      numOfLeds: this._lamp.num_of_leds,
       tickMs: this._delayMs,
     })
     this._animations.set(id, animation)
