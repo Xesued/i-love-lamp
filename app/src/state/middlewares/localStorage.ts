@@ -7,8 +7,8 @@ localStorageMiddleware.startListening({
   /* Required in types, but documentation shows as optional. */
   predicate: () => true,
   effect: async (_action, listenerApi) => {
-    const state = listenerApi.getState() as RootState // TODO: Improve typing?
-    localStorage.setItem("lamps", JSON.stringify(state.lamps.value))
+    // const state = listenerApi.getState() as RootState // TODO: Improve typing?
+    // localStorage.setItem("lamps", JSON.stringify(state.lamps.value))
     return
   },
 })

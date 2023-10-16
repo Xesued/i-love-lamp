@@ -6,72 +6,73 @@ import type { AnimationItem } from "engine/types"
 import { AnimationCard } from "../components/animations/AnimationCard"
 import { useAppSelector, useAppDispatch } from "../state/hooks"
 import { toggleLampAnimation } from "../state/lampSlice"
+import { useGetDevicesQuery } from "../api/lampApi"
 
 const API_URL = import.meta.env.VITE_API_URL
 
 function App() {
-  const lamps = useAppSelector((state) => state.lamps.value)
+  const { data: lamps } = useGetDevicesQuery()
   const animations = useAppSelector((state) => state.animations.value)
-  const [selectedLampIp, setSelectedLampIp] = useState<number | null>(null)
+  const [selectedLampGuid, setSelectedLampGuid] = useState<string | null>(null)
   const dispatch = useAppDispatch()
 
-  const handleSelectLamp = (ipStr: string | undefined) => {
-    const ip = parseInt(ipStr || "", 10)
-    if (isNaN(ip)) {
-      console.warn(`Could not update ip: ${ipStr}`)
-    }
-    setSelectedLampIp(ip)
+  console.log("Selected lamp", selectedLampGuid)
+  const handleSelectLamp = (lampGuid: string | undefined) => {
+    lampGuid 
+      ? setSelectedLampGuid(lampGuid)
+      : setSelectedLampGuid(null) 
   }
 
   const handleToggleAnimation = (animation: AnimationItem) => {
-    if (!selectedLampIp) return
+    // if (!selectedLampIp || !lamps) return
 
-    const lamp = lamps[selectedLampIp]
-    if (!lamp) return
+    // const lamp = lamps[selectedLampIp]
+    // if (!lamp) return
 
     // TODO: API is a fire-n-forget.  Next steps is to have it own
     // the data for what animations are running on what devices.
     // At that point, we will move to a more robust RTK Query
     // api.  For now, just fire off a POST via fetch
 
-    if (!lamp.animations.includes(animation.name)) {
-      // We don't have that animation, it's going to be turned on..
-      // send an add animation to server
-      fetch(`${API_URL}/animations/${selectedLampIp}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(animation),
-      })
-    } else {
-      fetch(`${API_URL}/animations/${selectedLampIp}/${animation.id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(animation),
-      })
-    }
+    // if (!lamp.animations.includes(animation.name)) {
+    //   // We don't have that animation, it's going to be turned on..
+    //   // send an add animation to server
+    //   fetch(`${API_URL}/animations/${selectedLampIp}`, {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(animation),
+    //   })
+    // } else {
+    //   fetch(`${API_URL}/animations/${selectedLampIp}/${animation.id}`, {
+    //     method: "DELETE",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(animation),
+    //   })
+    // }
 
-    dispatch(
-      toggleLampAnimation({
-        ip: selectedLampIp,
-        animationName: animation.name,
-      }),
-    )
+    // dispatch(
+    //   toggleLampAnimation({
+    //     ip: selectedLampIp,
+    //     animationName: animation.name,
+    //   }),
+    // )
   }
 
-  const hasLamps = Object.keys(lamps).length > 0
-  const selectedLamp = selectedLampIp ? lamps[selectedLampIp] : null
+
+  const hasLamps = !!lamps && lamps.length > 0
+  const selectedLamp = selectedLampGuid ? lamps?.find(l=> l.guid === selectedLampGuid) : null
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
         {hasLamps ? (
           <Select label="Selected Lamp" onChange={handleSelectLamp}>
-            {Object.entries(lamps).map(([ip, lamp]) => (
-              <Option value={ip}>{lamp.name}</Option>
+            {lamps.map((lamp) => (
+              <Option value={lamp.guid}>{lamp.name}</Option>
             ))}
           </Select>
         ) : (
@@ -88,7 +89,8 @@ function App() {
                 <AnimationCard
                   onClick={() => handleToggleAnimation(animation)}
                   animation={animation}
-                  isActive={selectedLamp.animations.includes(animation.name)}
+                  isActive
+                  // isActive={selectedLamp.animations.includes(animation.name)}
                 />
               ))}
             </div>

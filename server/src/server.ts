@@ -8,8 +8,6 @@ import { setupMongooseDB } from "./setupMongooseDb"
 dotenv.config()
 dotenv.config({ path: ".env.local", override: true })
 
-console.log(process.env)
-
 const HTTP_PORT = parseInt(process.env.LAMP_HTTP_SERVER_PORT || "", 10)
 const WS_PORT = parseInt(process.env.LAMP_WS_SERVER_PORT || "", 10)
 

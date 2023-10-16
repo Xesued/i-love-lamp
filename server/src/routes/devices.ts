@@ -5,6 +5,7 @@ import * as deviceController from "../controllers/devices"
 export const deviceRoutes: FastifyPluginCallback = (fastify, ops, done) => {
   fastify.get("/", deviceController.getDevices)
   fastify.post("/", deviceController.createDevice)
+  fastify.delete("/:deviceGuid", deviceController.deleteDevice)
   fastify.post("/scan", deviceController.scanForDevices)
   done()
 }

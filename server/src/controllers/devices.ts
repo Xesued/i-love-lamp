@@ -5,10 +5,12 @@ import { LampModel, Lamp } from "../models/lamp"
 import { createError } from "../utils/errors"
 import type { ApiError } from "../types"
 
+type ApiResponse<T> = Promise<ApiError | T>
+
 export async function getDevices(
   request: FastifyRequest,
   reply: FastifyReply
-): Promise<Lamp[]> {
+): ApiResponse<Lamp[]> {
   const lamps = await LampModel.find().exec()
   return lamps
 }
@@ -16,14 +18,14 @@ export async function getDevices(
 export async function scanForDevices(
   request: FastifyRequest,
   reply: FastifyReply
-): Promise<ApiError | Lamp[]> {
+): ApiResponse<Lamp[]> {
   return createError(reply, "Not Implemented", StatusCodes.NOT_IMPLEMENTED)
 }
 
 export async function createDevice(
   request: FastifyRequest,
   reply: FastifyReply
-): Promise<Lamp> {
+): ApiResponse<Lamp> {
   const lampParts = request.body as Omit<Lamp, "guid">
   const lamp = await LampModel.create({
     guid: uuidv4(),
@@ -31,4 +33,22 @@ export async function createDevice(
   })
 
   return lamp
+}
+
+export async function deleteDevice(
+  request: FastifyRequest,
+  reply: FastifyReply
+): ApiResponse<number> {
+  const { deviceGuid } = request.params as { deviceGuid: string }
+  const t = await LampModel.deleteOne({ guid: deviceGuid })
+
+  if (t.deletedCount < 1) {
+    return createError(
+      reply,
+      `Couldn't find lamp with guid: ${deviceGuid}`,
+      StatusCodes.NOT_FOUND
+    )
+  }
+
+  return t.deletedCount
 }

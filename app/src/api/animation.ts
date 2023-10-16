@@ -1,12 +1,22 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query"
 import { AnimationItem } from "engine/types"
 
+const BASE_URL = process.env.VITE_API_URL
+
 export const animationApi = createApi({
   reducerPath: "animationApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://127.0.0.1:3000" }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${BASE_URL}/animations`,
+  }),
   endpoints: (builder) => ({
-    addAnimation: builder.query<AnimationItem, string>({
-      query: (name) => `animation/${name}?`
-    })
-  })
+    getAnimations: builder.query<AnimationItem[], void>({
+      query: () => `/`,
+    }),
+    // addAnimation: builder.query<AnimationItem, string>({
+    //   query: (name) => `${name}?`,
+    // }),
+    // removeAnimation: builder.mutation<string, string>({
+    //   query: ()
+    // })
+  }),
 })

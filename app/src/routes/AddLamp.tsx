@@ -8,6 +8,7 @@ import { useAppDispatch } from "../state/hooks"
 type FormErrors = {
   ip?: string
   name?: string
+  numOfLeds?: string
 }
 
 export default function AddLamp() {
@@ -15,6 +16,8 @@ export default function AddLamp() {
   const navigate = useNavigate()
   const [newIp, setNewIp] = useState<string | null>("")
   const [newName, setNewName] = useState("")
+  const [newMacAddress, setNewMacAddress] = useState("")
+  const [newNumOfLeds, setNewNumOfLeds] = useState("")
   const [formErrors, setFormErrors] = useState<FormErrors>({})
 
   const handleNewIpChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -25,6 +28,17 @@ export default function AddLamp() {
     setNewName(e.currentTarget.value)
   }
 
+  const handleNewMacAddressChange= (e: React.FormEvent<HTMLInputElement>) => {
+    setNewMacAddress(e.currentTarget.value)
+  }
+
+  const handleNewNumOfLeds = (e: React.FormEvent<HTMLInputElement>) => {
+    const value = e.currentTarget.value
+    if(isNaN(parseInt(value))) {
+      return
+    }
+    setNewNumOfLeds(e.currentTarget.value)
+  }
   const handleCreateNewLamp = () => {
     const errors: FormErrors = {}
     if (newIp === null) {
@@ -61,7 +75,7 @@ export default function AddLamp() {
           {/* Type bug?  Requireing me to add crossOrigin undefined... */}
           <Input
             error={!!formErrors.ip}
-            label="Last Octlet in IP:"
+            label="Ip Address"
             value={newIp || ""}
             onChange={handleNewIpChange}
             crossOrigin={undefined}
@@ -75,8 +89,23 @@ export default function AddLamp() {
         <div>
           {/* Type bug?  Requireing me to add crossOrigin undefined... */}
           <Input
+            error={!!formErrors.ip}
+            label="Mac Address"
+            value={newMacAddress || ""}
+            onChange={handleNewMacAddressChange}
+            crossOrigin={undefined}
+          />
+          {!!formErrors.ip && (
+            <Typography variant="small" color="red">
+              {formErrors.ip}
+            </Typography>
+          )}
+        </div>
+        <div>
+          {/* Type bug?  Requireing me to add crossOrigin undefined... */}
+          <Input
             error={!!formErrors.name}
-            label="Lamp Name:"
+            label="Lamp Name"
             value={newName}
             onChange={handleNewNameChange}
             crossOrigin={undefined}
@@ -84,6 +113,21 @@ export default function AddLamp() {
           {!!formErrors.name && (
             <Typography variant="small" color="red">
               {formErrors.name}
+            </Typography>
+          )}
+        </div>
+        <div>
+          {/* Type bug?  Requireing me to add crossOrigin undefined... */}
+          <Input
+            error={!!formErrors.name}
+            label="Number of LEDs"
+            value={newNumOfLeds}
+            onChange={handleNewNumOfLeds}
+            crossOrigin={undefined}
+          />
+          {!!formErrors.name && (
+            <Typography variant="small" color="red">
+              {formErrors.numOfLeds}
             </Typography>
           )}
         </div>
