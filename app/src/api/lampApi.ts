@@ -1,10 +1,21 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { AnimationItem } from "engine/types"
+import { stringify } from "uuid"
 
-export type Lamp = {
+// TODO: Build a common "API" schema shared between
+// the server an app
+
+export interface ILamp {
   guid: string
   name: string
   current_ip: string
   num_of_leds: number
+}
+
+export interface IAnimation {
+  guid: string
+  name: string
+  details: AnimationItem
 }
 
 const BASE_URL = import.meta.env.VITE_API_URL
@@ -14,15 +25,15 @@ export const lampApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: BASE_URL,
   }),
+  tagTypes: ["devices", "animations"],
   endpoints: (builder) => ({
-    /**
-     * Fetch all of the devices
-     */
-    getDevices: builder.query<Lamp[], void>({
+    getDevices: builder.query<ILamp[], void>({
+      providesTags: ["devices"],
       query: () => "devices",
     }),
 
-    addDevice: builder.mutation<Lamp, Omit<Lamp, "guid">>({
+    addDevice: builder.mutation<ILamp, Omit<ILamp, "guid">>({
+      invalidatesTags: ["devices"],
       query: (lampData) => ({
         url: `devices`,
         method: "POST",
@@ -35,6 +46,19 @@ export const lampApi = createApi({
         url: `devices/${lampGuid}`,
         method: "DELETE",
       }),
+    }),
+
+    getAnimations: builder.query<IAnimation[], void>({
+      providesTags: ["animations"],
+      query: () => "animations",
+    }),
+
+    toggleAnimation: builder.mutation<
+      string,
+      { deviceGuid: string; animationGuid: string }
+    >({
+      query: ({ deviceGuid, animationGuid }) =>
+        `devices/${deviceGuid}/toggleAnimation/${animationGuid}`,
     }),
 
     // /**
@@ -55,4 +79,5 @@ export const {
   useGetDevicesQuery,
   useAddDeviceMutation,
   useRemoveDeviceMutation,
+  useGetAnimationsQuery,
 } = lampApi

@@ -7,7 +7,6 @@ import {
 } from "./types"
 
 import * as Animations from "./animations"
-import { Lamp } from "../server/src/models/lamp"
 
 function getLeds(
   start: number | undefined,
@@ -28,20 +27,20 @@ function getLeds(
  *
  */
 export class ColorEngine {
-  private _lamp: Lamp
+  private _numOfLeds: number
   private _animations: Map<string, Generator<LedMap>> = new Map()
   private _interval: any = null
   private _delayMs: number = 32
   private _blankLeds: RGBW[]
 
-  constructor(device: Lamp) {
-    this._lamp = device
-    this._blankLeds = Array(this._lamp.num_of_leds).fill([0, 0, 0, 0])
+  constructor(numOfLeds: number) {
+    this._numOfLeds = numOfLeds
+    this._blankLeds = Array(this._numOfLeds).fill([0, 0, 0, 0])
   }
 
   addAnimation(id: string, animationFunc: ColorGeneratorFunc) {
     const animation = animationFunc({
-      numOfLeds: this._lamp.num_of_leds,
+      numOfLeds: this._numOfLeds,
       tickMs: this._delayMs,
     })
     this._animations.set(id, animation)
@@ -52,7 +51,7 @@ export class ColorEngine {
   }
 
   static buildAnimation(animationDef: AnimationItem, numOfLeds: number) {
-    switch (animationDef.type) {
+    switch (animationDef.animationType) {
       case AnimationType.BLINK: {
         const leds = getLeds(
           animationDef.startLed,

@@ -1,9 +1,9 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button, Input, Typography } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
 
 import { addLamp } from "../state/lampSlice"
-import { useAppDispatch } from "../state/hooks"
+import { useAddDeviceMutation } from "../api/lampApi"
 
 type FormErrors = {
   ip?: string
@@ -12,8 +12,8 @@ type FormErrors = {
 }
 
 export default function AddLamp() {
-  const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const [addDevice, addResult] = useAddDeviceMutation()
   const [newIp, setNewIp] = useState<string | null>("")
   const [newName, setNewName] = useState("")
   const [newMacAddress, setNewMacAddress] = useState("")
@@ -61,11 +61,19 @@ export default function AddLamp() {
 
     const lamp = {
       name: newName,
+      current_ip: newIp,
+      num_of_leds: parseInt(newNumOfLeds, 10),
+      mac_address: newMacAddress,
     }
 
-    dispatch(addLamp({ id: parseInt(newIp, 10), lamp }))
-    navigate("/lamps")
+    addDevice(lamp)
   }
+
+  useEffect(() =>{
+    if( addResult.status === 'fulfilled' && addResult.isSuccess) {
+      navigate("/lamps")
+    }
+  }, [addResult])
 
   return (
     <div className="flex flex-col gap-6">

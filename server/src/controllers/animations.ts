@@ -2,66 +2,56 @@ import { ColorEngine } from "engine"
 import { FastifyReply, FastifyRequest } from "fastify"
 import type { AnimationItem } from "engine/types"
 import { StatusCodes } from "http-status-codes"
+import { v4 as uuidv4 } from "uuid"
 
-import { LampModel } from "../models/lamp"
-import { buildColorSender } from "../utils/colorPusher"
+import { AnimationModel } from "../models/animation"
+import type { IAnimation } from "../models/animation"
 import { createError } from "../utils/errors"
+import type { ApiResponse } from "../types"
 
-const engines: Map<string, ColorEngine> = new Map()
+export async function createAnimation(
+  request: FastifyRequest,
+  reply: FastifyReply
+): ApiResponse<IAnimation> {
+  const animationParts = request.body as Omit<IAnimation, "guid">
+  const animation = await AnimationModel.create({
+    ...animationParts,
+    guid: uuidv4(),
+  })
+
+  return animation
+}
+
+export async function getAnimations(
+  request: FastifyRequest,
+  reply: FastifyReply
+): ApiResponse<IAnimation[]> {
+  const animations = await AnimationModel.find().exec()
+  return animations
+}
 
 export async function addAnimation(
   request: FastifyRequest,
   reply: FastifyReply
 ): Promise<any> {
-  const { deviceId } = request.params as { deviceId: string }
-  const lamp = await LampModel.findById(deviceId)
-  if (!lamp)
-    return createError(
-      reply,
-      `Couldn't find lamp with id: ${deviceId}`,
-      StatusCodes.NOT_FOUND
-    )
-
-  if (!engines.has(lamp.guid)) {
-    engines.set(lamp.guid, new ColorEngine(lamp))
-    engines
-      .get(lamp.guid)
-      ?.run(buildColorSender(lamp.num_of_leds, lamp.current_ip))
-  }
-
-  const animationItem = request.body as AnimationItem
-  const animation = ColorEngine.buildAnimation(animationItem, lamp.num_of_leds)
-
-  if (animation) {
-    engines.get(lamp.guid)?.addAnimation(animationItem.id, animation)
-    return { message: "Animation added" }
-  }
-
-  reply.statusCode = 500
-  return { error: "Couldn't create the animation" }
+  reply.statusCode = StatusCodes.NOT_IMPLEMENTED
+  return { error: "Applying animation not implemented" }
 }
 
 export async function removeAnimation(
   request: FastifyRequest,
   reply: FastifyReply
-): Promise<any> {
-  const { deviceId, animationId } = request.params as {
-    deviceId: string
-    animationId: string
-  }
-  const lamp = await LampModel.findById(deviceId)
-  if (!lamp)
+): ApiResponse<number> {
+  const { animationGuid: guid } = request.params as { animationGuid: string }
+  const t = await AnimationModel.deleteOne({ guid })
+
+  if (t.deletedCount < 1) {
     return createError(
       reply,
-      `Couldn't find lamp with id: ${deviceId}`,
+      `Couldn't find animation with guid: ${guid}`,
       StatusCodes.NOT_FOUND
     )
-
-  if (animationId) {
-    engines.get(deviceId)?.removeAnimation(animationId)
-    return { message: "Animation removed" }
   }
 
-  reply.statusCode = 500
-  return { error: "Couldn't create the animation" }
+  return t.deletedCount
 }

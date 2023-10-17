@@ -22,13 +22,13 @@ export enum AnimationType {
 export interface Animation {
   id: string
   name: string
-  type: AnimationType
+  animationType: AnimationType
   startLed?: number
   endLed?: number
 }
 
 export interface BlinkAnimation extends Animation {
-  type: AnimationType.BLINK
+  animationType: AnimationType.BLINK
   onColor: RGBW
   onDuration: number
   offColor: RGBW
@@ -37,13 +37,13 @@ export interface BlinkAnimation extends Animation {
 }
 
 export interface BounceAnimation extends Animation {
-  type: AnimationType.BOUNCE
+  animationType: AnimationType.BOUNCE
   color: RGBW
   speed: number
 }
 
 export interface SolidAnimation extends Animation {
-  type: AnimationType.SOLID
+  animationType: AnimationType.SOLID
   color: RGBW
 }
 

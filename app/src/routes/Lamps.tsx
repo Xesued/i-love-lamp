@@ -16,7 +16,6 @@ export default function LampList() {
   const { 
     data: lamps,
   } = useGetDevicesQuery()
-  const [addDevice, addResult] = useAddDeviceMutation()
   const [removeDevice, removeResult] = useRemoveDeviceMutation()
 
   const handleDeleteLamp = (lampGuid: string) => {
@@ -24,7 +23,6 @@ export default function LampList() {
   }
 
   const handleCreateNewLamp = (lampParts: Omit<Lamp, 'guid'>) => {
-    addDevice(lampParts)
     navigate("/add-lamp")
   }
 

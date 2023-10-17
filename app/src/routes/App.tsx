@@ -4,17 +4,14 @@ import { Alert, Select, Option, Typography } from "@material-tailwind/react"
 import type { AnimationItem } from "engine/types"
 
 import { AnimationCard } from "../components/animations/AnimationCard"
-import { useAppSelector, useAppDispatch } from "../state/hooks"
-import { toggleLampAnimation } from "../state/lampSlice"
-import { useGetDevicesQuery } from "../api/lampApi"
+import { IAnimation, useGetAnimationsQuery, useGetDevicesQuery } from "../api/lampApi"
 
-const API_URL = import.meta.env.VITE_API_URL
 
 function App() {
   const { data: lamps } = useGetDevicesQuery()
-  const animations = useAppSelector((state) => state.animations.value)
+  const { data: animations } = useGetAnimationsQuery()
+
   const [selectedLampGuid, setSelectedLampGuid] = useState<string | null>(null)
-  const dispatch = useAppDispatch()
 
   console.log("Selected lamp", selectedLampGuid)
   const handleSelectLamp = (lampGuid: string | undefined) => {
@@ -23,7 +20,7 @@ function App() {
       : setSelectedLampGuid(null) 
   }
 
-  const handleToggleAnimation = (animation: AnimationItem) => {
+  const handleToggleAnimation = (animation: IAnimation) => {
     // if (!selectedLampIp || !lamps) return
 
     // const lamp = lamps[selectedLampIp]
@@ -85,14 +82,17 @@ function App() {
           <div>
             <Typography variant="h3">Lamp Animations</Typography>
             <div className="flex flex-col gap-3">
-              {animations.map((animation) => (
-                <AnimationCard
-                  onClick={() => handleToggleAnimation(animation)}
-                  animation={animation}
-                  isActive
-                  // isActive={selectedLamp.animations.includes(animation.name)}
-                />
-              ))}
+              {animations ? 
+                animations.map((animation) => (
+                  <AnimationCard
+                    onClick={() => handleToggleAnimation(animation)}
+                    animation={animation}
+                    isActive
+                    // isActive={selectedLamp.animations.includes(animation.name)}
+                  />
+                ))
+              : <div> NO ANIMATIONS BUDDY</div>
+              }
             </div>
           </div>
         )}

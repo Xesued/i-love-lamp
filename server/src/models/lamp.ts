@@ -1,7 +1,14 @@
-import mongoose, { Schema } from "mongoose"
-import type { InferSchemaType } from "mongoose"
+import { Schema, model } from "mongoose"
 
-const schema = new Schema({
+export interface ILamp {
+  guid: string
+  name: string
+  current_ip: string
+  mac_address: string
+  num_of_leds: number
+}
+
+const schema = new Schema<ILamp>({
   guid: { type: String, required: true },
   name: { type: String, required: true },
   current_ip: { type: String, required: true },
@@ -9,5 +16,4 @@ const schema = new Schema({
   num_of_leds: { type: Number, required: true },
 })
 
-export type Lamp = InferSchemaType<typeof schema>
-export const LampModel = mongoose.model("Lamp", schema)
+export const LampModel = model<ILamp>("Lamp", schema)

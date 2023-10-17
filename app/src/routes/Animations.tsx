@@ -6,14 +6,16 @@ import {
   ListItemSuffix,
 } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
-
-import { useAppDispatch, useAppSelector } from "../state/hooks"
-import { removeAnimation } from "../state/animationSlice"
+import { useGetAnimationsQuery } from "../api/lampApi"
+// import { removeAnimation } from "../state/animationSlice"
 
 export default function Config() {
   const navigate = useNavigate()
-  const animations = useAppSelector((state) => state.animations.value)
-  const dispatch = useAppDispatch()
+  const {
+    data: animations,
+    isFetching,
+    isSuccess
+  } = useGetAnimationsQuery()
 
   const handleAddNew = () => {
     navigate("/animations/new")
@@ -24,8 +26,12 @@ export default function Config() {
   }
 
   const handleDelete = (id: string) => {
-    dispatch(removeAnimation(id))
+    // dispatch(removeAnimation(id))
   }
+
+  if (!animations) {
+    return <div> Loading....</div>
+  } 
 
   return (
     <div className="flex flex-col gap-4">
@@ -34,21 +40,21 @@ export default function Config() {
         {animations.map((animation) => (
           <ListItem key={animation.name} className="py-1 pr-1 pl-4">
             <div className="flex flex-col">
-              <Typography variant="small">Type: {animation.type}</Typography>
+              <Typography variant="small">Type: {animation.details.animationType}</Typography>
               <Typography>{animation.name} </Typography>
             </div>
             <ListItemSuffix className="flex gap-2 ">
               <Button
                 size="sm"
                 color="blue"
-                onClick={() => handleEdit(animation.id)}
+                onClick={() => handleEdit(animation.guid)}
               >
                 Edit
               </Button>
               <Button
                 size="sm"
                 color="red"
-                onClick={() => handleDelete(animation.id)}
+                onClick={() => handleDelete(animation.guid)}
               >
                 Delete
               </Button>
