@@ -1,4 +1,13 @@
+import { AnimationItem } from "engine/types"
 import { Schema, model } from "mongoose"
+
+/**
+ * Lamp animations are not a DB model.  This information
+ * is in-memory only.
+ */
+export interface ILampAnimations {
+  animationGuids: string[]
+}
 
 export interface ILamp {
   guid: string

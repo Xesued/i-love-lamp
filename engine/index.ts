@@ -50,6 +50,40 @@ export class ColorEngine {
     this._animations.delete(id)
   }
 
+  /**
+   * Gets the GUIDs for what animations have been
+   * applied.
+   *
+   * @returns a list of animation GUIDs this device is running
+   */
+  getAnimationGuids(): string[] {
+    return Array.from(this._animations.keys())
+  }
+
+  /**
+   * Toggles the anmiation, then returns a list
+   * of GUIDs for what animations are turned on
+   *
+   * @param animationGuid
+   * @param animationDef
+   */
+  toggleAnimation(
+    animationGuid: string,
+    animationDef: AnimationItem
+  ): string[] {
+    if (this._animations.has(animationGuid)) {
+      this._animations.delete(animationGuid)
+    } else {
+      const colorFunc = ColorEngine.buildAnimation(
+        animationDef,
+        this._numOfLeds
+      )
+      if (colorFunc) this.addAnimation(animationGuid, colorFunc)
+    }
+
+    return this.getAnimationGuids()
+  }
+
   static buildAnimation(animationDef: AnimationItem, numOfLeds: number) {
     switch (animationDef.animationType) {
       case AnimationType.BLINK: {

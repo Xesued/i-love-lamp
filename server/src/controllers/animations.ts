@@ -1,6 +1,4 @@
-import { ColorEngine } from "engine"
 import { FastifyReply, FastifyRequest } from "fastify"
-import type { AnimationItem } from "engine/types"
 import { StatusCodes } from "http-status-codes"
 import { v4 as uuidv4 } from "uuid"
 
@@ -23,19 +21,11 @@ export async function createAnimation(
 }
 
 export async function getAnimations(
-  request: FastifyRequest,
-  reply: FastifyReply
+  _request: FastifyRequest,
+  _reply: FastifyReply
 ): ApiResponse<IAnimation[]> {
   const animations = await AnimationModel.find().exec()
   return animations
-}
-
-export async function addAnimation(
-  request: FastifyRequest,
-  reply: FastifyReply
-): Promise<any> {
-  reply.statusCode = StatusCodes.NOT_IMPLEMENTED
-  return { error: "Applying animation not implemented" }
 }
 
 export async function removeAnimation(

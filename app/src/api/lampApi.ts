@@ -10,6 +10,7 @@ export interface ILamp {
   name: string
   current_ip: string
   num_of_leds: number
+  animationGuids: string[]
 }
 
 export interface IAnimation {
@@ -57,8 +58,11 @@ export const lampApi = createApi({
       string,
       { deviceGuid: string; animationGuid: string }
     >({
-      query: ({ deviceGuid, animationGuid }) =>
-        `devices/${deviceGuid}/toggleAnimation/${animationGuid}`,
+      invalidatesTags: ["devices"],
+      query: ({ deviceGuid, animationGuid }) => ({
+        method: "POST",
+        url: `devices/${deviceGuid}/toggleAnimation/${animationGuid}`,
+      }),
     }),
 
     // /**
@@ -80,4 +84,5 @@ export const {
   useAddDeviceMutation,
   useRemoveDeviceMutation,
   useGetAnimationsQuery,
+  useToggleAnimationMutation,
 } = lampApi

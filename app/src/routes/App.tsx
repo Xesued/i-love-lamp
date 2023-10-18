@@ -1,19 +1,17 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Alert, Select, Option, Typography } from "@material-tailwind/react"
-import type { AnimationItem } from "engine/types"
 
 import { AnimationCard } from "../components/animations/AnimationCard"
-import { IAnimation, useGetAnimationsQuery, useGetDevicesQuery } from "../api/lampApi"
+import { IAnimation, useGetAnimationsQuery, useGetDevicesQuery, useToggleAnimationMutation } from "../api/lampApi"
 
 
 function App() {
   const { data: lamps } = useGetDevicesQuery()
   const { data: animations } = useGetAnimationsQuery()
-
+  const [toggleLampAnimation, toggleResults] = useToggleAnimationMutation()
   const [selectedLampGuid, setSelectedLampGuid] = useState<string | null>(null)
 
-  console.log("Selected lamp", selectedLampGuid)
   const handleSelectLamp = (lampGuid: string | undefined) => {
     lampGuid 
       ? setSelectedLampGuid(lampGuid)
@@ -21,42 +19,11 @@ function App() {
   }
 
   const handleToggleAnimation = (animation: IAnimation) => {
-    // if (!selectedLampIp || !lamps) return
+    if (!selectedLampGuid || !lamps) return
+    const lamp = lamps.find(l => l.guid === selectedLampGuid)
+    if (!lamp) return
 
-    // const lamp = lamps[selectedLampIp]
-    // if (!lamp) return
-
-    // TODO: API is a fire-n-forget.  Next steps is to have it own
-    // the data for what animations are running on what devices.
-    // At that point, we will move to a more robust RTK Query
-    // api.  For now, just fire off a POST via fetch
-
-    // if (!lamp.animations.includes(animation.name)) {
-    //   // We don't have that animation, it's going to be turned on..
-    //   // send an add animation to server
-    //   fetch(`${API_URL}/animations/${selectedLampIp}`, {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(animation),
-    //   })
-    // } else {
-    //   fetch(`${API_URL}/animations/${selectedLampIp}/${animation.id}`, {
-    //     method: "DELETE",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(animation),
-    //   })
-    // }
-
-    // dispatch(
-    //   toggleLampAnimation({
-    //     ip: selectedLampIp,
-    //     animationName: animation.name,
-    //   }),
-    // )
+    toggleLampAnimation({animationGuid: animation.guid, deviceGuid: selectedLampGuid})
   }
 
 
@@ -87,8 +54,7 @@ function App() {
                   <AnimationCard
                     onClick={() => handleToggleAnimation(animation)}
                     animation={animation}
-                    isActive
-                    // isActive={selectedLamp.animations.includes(animation.name)}
+                    isActive={selectedLamp.animationGuids.includes(animation.guid)}
                   />
                 ))
               : <div> NO ANIMATIONS BUDDY</div>
