@@ -1,20 +1,5 @@
 {
     "python.linting.enabled": true,
     "python.languageServer": "Pylance",
-    "python.analysis.typeCheckingMode": "basic",
-    "micropico.syncFolder": "pi",
-    "micropico.openOnStart": true,
-    "micropico.softResetAfterUpload": true,
-    "python.analysis.typeshedPaths": [
-        ".vscode\\Pico-W-Stub"
-    ],
-    "python.analysis.extraPaths": [
-        ".vscode\\Pico-W-Stub\\stubs"
-    ],
-    "micropico.syncFileTypes": [
-        "py",
-        "log",
-        "json",
-        "mpy"
-    ]
+    "python.analysis.typeCheckingMode": "basic"
 }

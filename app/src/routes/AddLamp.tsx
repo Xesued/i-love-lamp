@@ -1,20 +1,23 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button, Input, Typography } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
 
 import { addLamp } from "../state/lampSlice"
-import { useAppDispatch } from "../state/hooks"
+import { useAddDeviceMutation } from "../api/lampApi"
 
 type FormErrors = {
   ip?: string
   name?: string
+  numOfLeds?: string
 }
 
 export default function AddLamp() {
-  const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const [addDevice, addResult] = useAddDeviceMutation()
   const [newIp, setNewIp] = useState<string | null>("")
   const [newName, setNewName] = useState("")
+  const [newMacAddress, setNewMacAddress] = useState("")
+  const [newNumOfLeds, setNewNumOfLeds] = useState("")
   const [formErrors, setFormErrors] = useState<FormErrors>({})
 
   const handleNewIpChange = (e: React.FormEvent<HTMLInputElement>) => {
@@ -25,6 +28,17 @@ export default function AddLamp() {
     setNewName(e.currentTarget.value)
   }
 
+  const handleNewMacAddressChange= (e: React.FormEvent<HTMLInputElement>) => {
+    setNewMacAddress(e.currentTarget.value)
+  }
+
+  const handleNewNumOfLeds = (e: React.FormEvent<HTMLInputElement>) => {
+    const value = e.currentTarget.value
+    if(isNaN(parseInt(value))) {
+      return
+    }
+    setNewNumOfLeds(e.currentTarget.value)
+  }
   const handleCreateNewLamp = () => {
     const errors: FormErrors = {}
     if (newIp === null) {
@@ -47,11 +61,19 @@ export default function AddLamp() {
 
     const lamp = {
       name: newName,
+      current_ip: newIp,
+      num_of_leds: parseInt(newNumOfLeds, 10),
+      mac_address: newMacAddress,
     }
 
-    dispatch(addLamp({ id: parseInt(newIp, 10), lamp }))
-    navigate("/lamps")
+    addDevice(lamp)
   }
+
+  useEffect(() =>{
+    if( addResult.status === 'fulfilled' && addResult.isSuccess) {
+      navigate("/lamps")
+    }
+  }, [addResult])
 
   return (
     <div className="flex flex-col gap-6">
@@ -61,7 +83,7 @@ export default function AddLamp() {
           {/* Type bug?  Requireing me to add crossOrigin undefined... */}
           <Input
             error={!!formErrors.ip}
-            label="Last Octlet in IP:"
+            label="Ip Address"
             value={newIp || ""}
             onChange={handleNewIpChange}
             crossOrigin={undefined}
@@ -75,8 +97,23 @@ export default function AddLamp() {
         <div>
           {/* Type bug?  Requireing me to add crossOrigin undefined... */}
           <Input
+            error={!!formErrors.ip}
+            label="Mac Address"
+            value={newMacAddress || ""}
+            onChange={handleNewMacAddressChange}
+            crossOrigin={undefined}
+          />
+          {!!formErrors.ip && (
+            <Typography variant="small" color="red">
+              {formErrors.ip}
+            </Typography>
+          )}
+        </div>
+        <div>
+          {/* Type bug?  Requireing me to add crossOrigin undefined... */}
+          <Input
             error={!!formErrors.name}
-            label="Lamp Name:"
+            label="Lamp Name"
             value={newName}
             onChange={handleNewNameChange}
             crossOrigin={undefined}
@@ -84,6 +121,21 @@ export default function AddLamp() {
           {!!formErrors.name && (
             <Typography variant="small" color="red">
               {formErrors.name}
+            </Typography>
+          )}
+        </div>
+        <div>
+          {/* Type bug?  Requireing me to add crossOrigin undefined... */}
+          <Input
+            error={!!formErrors.name}
+            label="Number of LEDs"
+            value={newNumOfLeds}
+            onChange={handleNewNumOfLeds}
+            crossOrigin={undefined}
+          />
+          {!!formErrors.name && (
+            <Typography variant="small" color="red">
+              {formErrors.numOfLeds}
             </Typography>
           )}
         </div>

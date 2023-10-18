@@ -25,18 +25,17 @@ function getLeds(
  * Color animations are controlled by a list of generators
  * that let the engine know what leds need to be what color.
  *
- *
  */
 export class ColorEngine {
+  private _numOfLeds: number
   private _animations: Map<string, Generator<LedMap>> = new Map()
   private _interval: any = null
   private _delayMs: number = 32
-  private _numOfLeds: number
   private _blankLeds: RGBW[]
 
-  constructor(leds: number) {
-    this._numOfLeds = leds
-    this._blankLeds = Array(leds).fill([0, 0, 0, 0])
+  constructor(numOfLeds: number) {
+    this._numOfLeds = numOfLeds
+    this._blankLeds = Array(this._numOfLeds).fill([0, 0, 0, 0])
   }
 
   addAnimation(id: string, animationFunc: ColorGeneratorFunc) {
@@ -51,8 +50,42 @@ export class ColorEngine {
     this._animations.delete(id)
   }
 
+  /**
+   * Gets the GUIDs for what animations have been
+   * applied.
+   *
+   * @returns a list of animation GUIDs this device is running
+   */
+  getAnimationGuids(): string[] {
+    return Array.from(this._animations.keys())
+  }
+
+  /**
+   * Toggles the anmiation, then returns a list
+   * of GUIDs for what animations are turned on
+   *
+   * @param animationGuid
+   * @param animationDef
+   */
+  toggleAnimation(
+    animationGuid: string,
+    animationDef: AnimationItem
+  ): string[] {
+    if (this._animations.has(animationGuid)) {
+      this._animations.delete(animationGuid)
+    } else {
+      const colorFunc = ColorEngine.buildAnimation(
+        animationDef,
+        this._numOfLeds
+      )
+      if (colorFunc) this.addAnimation(animationGuid, colorFunc)
+    }
+
+    return this.getAnimationGuids()
+  }
+
   static buildAnimation(animationDef: AnimationItem, numOfLeds: number) {
-    switch (animationDef.type) {
+    switch (animationDef.animationType) {
       case AnimationType.BLINK: {
         const leds = getLeds(
           animationDef.startLed,
