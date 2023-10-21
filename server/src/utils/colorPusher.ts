@@ -20,3 +20,19 @@ export function buildColorSender(maxLeds: number, ip: string) {
     })
   }
 }
+
+export function pushColors(leds: RGBW[], ip: string) {
+  const LED_PORT = parseInt(process.env.LAMP_DEVICE_PORT || "", 10)
+  if (isNaN(LED_PORT)) {
+    throw Error(`Must define a DEVICE_PORT: ${LED_PORT}`)
+  }
+
+  let buff = Buffer.alloc(leds.length * 4)
+  leds.forEach((led, i) => {
+    buff.set(led, i * 4)
+  })
+
+  client.send(buff, LED_PORT, ip, (error) => {
+    if (error) client.close()
+  })
+}

@@ -3,12 +3,10 @@ import network
 import usocket as socket
 from micropython import const
 from commander import Commander
-from config import WIFI_SSID, WIFI_PASSWORD, LED_COUNT, PORT
-
+from config import WIFI_SSID, WIFI_PASSWORD, LED_COUNT, PORT, GPIO_PIN
 
 RED = const((255, 0, 0,0))
 WHITE = const((0, 0, 0,100))
-
 
 def connectToWifi():
     """ Connect to the local network
@@ -79,7 +77,7 @@ s.settimeout(2)
 ip_bits = bin(int(ip.split('.')[-1]))
 ip_leds = [to_color(i) for i in ip_bits]
 
-commander = Commander(LED_COUNT, 0)
+commander = Commander(LED_COUNT, GPIO_PIN)
 color_ip(commander)
 
 # deref for performance

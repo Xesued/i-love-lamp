@@ -16,7 +16,7 @@ const colorEngines: Map<string, ColorEngine> = new Map()
 
 async function startUp() {
   // How do I get these to communicate with each other?
-  // When I get a signel from the web socket, I need to
+  // When I get a signal from the web socket, I need to
   // stop all of the existing animations.   Do we create
   // the engine map here and pass it down?  How can we create
   // a more generic "event" system that each could listen to..
