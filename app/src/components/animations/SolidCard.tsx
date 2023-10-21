@@ -3,13 +3,14 @@ import { Card, CardBody, Typography } from "@material-tailwind/react"
 import { ledToRGB } from "../../utils/colorUtils"
 
 type SolidCardProps = {
+  name: string
   animation: SolidAnimation
   isActive: boolean
   onClick: () => void
 }
 
 export function SolidCard(props: SolidCardProps) {
-  const { animation, isActive, onClick } = props
+  const { name, animation, isActive, onClick } = props
 
   let ledsStr = `Leds: ${
     !animation.startLed ? "Beginning" : animation.startLed
@@ -29,7 +30,7 @@ export function SolidCard(props: SolidCardProps) {
           <div className="flex flex-col justify-center gap-2">
             <div className="flex flex-col">
               <Typography variant="small">Type: Solid</Typography>
-              <Typography variant="h5">{animation.name}</Typography>
+              <Typography variant="h5">{name}</Typography>
             </div>
             <Typography className="text-xs">{ledsStr}</Typography>
           </div>

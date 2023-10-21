@@ -7,7 +7,6 @@ import {
 } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
 
-import type { Lamp } from "../api/lampApi"
 import { useAddDeviceMutation, useGetDevicesQuery, useRemoveDeviceMutation } from "../api/lampApi"
 
 export default function LampList() {
@@ -22,7 +21,7 @@ export default function LampList() {
     removeDevice(lampGuid)
   }
 
-  const handleCreateNewLamp = (lampParts: Omit<Lamp, 'guid'>) => {
+  const handleCreateNewLamp = () => {
     navigate("/add-lamp")
   }
 
@@ -36,7 +35,7 @@ export default function LampList() {
       <List>
         {lamps.map(lamp => (
           <ListItem key={lamp.guid} className="py-1 pr-1 pl-4">
-            {lamp.current_ip}: {lamp.name}{" "}
+            {lamp.currentIP}: {lamp.name}{" "}
             <ListItemSuffix>
               <Button
                 color="amber"

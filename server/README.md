@@ -29,3 +29,5 @@ Once a connection is established, you can send binary data in the following form
 | ------------------ | --------------------------------------------------- |
 | 0 to 3             | The IP address of the LED Device                    |
 | n _ 4 to n _ 4 + 3 | The RGBW values for the LED a index "n" (1 indexed) |
+
+## SQLite

@@ -15,13 +15,13 @@ export function AnimationCard(props: AnimationCardProps) {
 
   switch (animation.details.animationType) {
     case AnimationType.BLINK: {
-      return <BlinkCard animation={animation.details} {...rest} />
+      return <BlinkCard name={animation.name} animation={animation.details} {...rest} />
     }
     case AnimationType.SOLID: {
-      return <SolidCard animation={animation.details} {...rest} />
+      return <SolidCard name={animation.name} animation={animation.details} {...rest} />
     }
     case AnimationType.BOUNCE: {
-      return <BounceCard animation={animation.details} {...rest} />
+      return <BounceCard name={animation.name} animation={animation.details} {...rest} />
     }
   }
 }

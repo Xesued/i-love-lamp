@@ -13,8 +13,6 @@ export default function Config() {
   const navigate = useNavigate()
   const {
     data: animations,
-    isFetching,
-    isSuccess
   } = useGetAnimationsQuery()
 
   const handleAddNew = () => {

@@ -1,9 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify"
-import { v4 as uuidv4 } from "uuid"
 import { StatusCodes } from "http-status-codes"
-import { LampModel, ILamp, ILampAnimations } from "../models/lamp"
+import { LampModel, ILamp } from "../models/lamp"
 import { createError } from "../utils/errors"
-import type { ApiError, ApiResponse } from "../types"
+import type { ApiResponse } from "../types"
 import { ColorEngine } from "engine"
 import { buildColorSender } from "../utils/colorPusher"
 import { AnimationModel } from "../models/animation"
@@ -13,11 +12,11 @@ const engines: Map<string, ColorEngine> = new Map()
 export async function getDevices(
   request: FastifyRequest,
   reply: FastifyReply
-): ApiResponse<Array<ILamp & ILampAnimations>> {
-  const lamps = await LampModel.find().exec()
+): ApiResponse<Array<ILamp & { animationGuids: string[] }>> {
+  const lamps = await LampModel.findAll()
 
   return lamps.map((l) => ({
-    ...l.toObject(),
+    ...l.toJSON(),
     animationGuids: engines.get(l.guid)?.getAnimationGuids() || [],
   }))
 }
@@ -36,7 +35,6 @@ export async function createDevice(
   const lampParts = request.body as Omit<ILamp, "guid">
   const lamp = await LampModel.create({
     ...lampParts,
-    guid: uuidv4(),
   })
 
   return lamp
@@ -47,9 +45,9 @@ export async function deleteDevice(
   reply: FastifyReply
 ): ApiResponse<number> {
   const { deviceGuid } = request.params as { deviceGuid: string }
-  const t = await LampModel.deleteOne({ guid: deviceGuid })
+  const deletedCount = await LampModel.destroy({ where: { guid: deviceGuid } })
 
-  if (t.deletedCount < 1) {
+  if (deletedCount < 1) {
     return createError(
       reply,
       `Couldn't find lamp with guid: ${deviceGuid}`,
@@ -57,7 +55,7 @@ export async function deleteDevice(
     )
   }
 
-  return t.deletedCount
+  return deletedCount
 }
 
 /**
@@ -75,7 +73,7 @@ export async function toggleAnimation(
     animationGuid: string
   }
 
-  const lamp = await LampModel.findOne({ guid: deviceGuid })
+  const lamp = await LampModel.findOne({ where: { guid: deviceGuid } })
   if (!lamp)
     return createError(
       reply,
@@ -83,7 +81,10 @@ export async function toggleAnimation(
       StatusCodes.NOT_FOUND
     )
 
-  const animation = await AnimationModel.findOne({ guid: animationGuid })
+  console.log("FOUND DEVICE", lamp.name)
+  const animation = await AnimationModel.findOne({
+    where: { guid: animationGuid },
+  })
   if (!animation)
     return createError(
       reply,
@@ -91,14 +92,17 @@ export async function toggleAnimation(
       StatusCodes.NOT_FOUND
     )
 
+  console.log("FOUND ANIMATION", animation.name)
+
   if (!engines.has(lamp.guid)) {
-    const newEngine = new ColorEngine(lamp.num_of_leds)
-    newEngine.run(buildColorSender(lamp.num_of_leds, lamp.current_ip))
+    const newEngine = new ColorEngine(lamp.numOfLeds)
+    newEngine.run(buildColorSender(lamp.numOfLeds, lamp.currentIP))
     engines.set(lamp.guid, newEngine)
   }
 
   const engine = engines.get(lamp.guid)
   if (engine) {
+    console.log("APPLINING ANIMTAION")
     return engine.toggleAnimation(animation.guid, animation.details)
   }
 

@@ -8,8 +8,8 @@ import { stringify } from "uuid"
 export interface ILamp {
   guid: string
   name: string
-  current_ip: string
-  num_of_leds: number
+  currentIP: string
+  numOfLeds: number
   animationGuids: string[]
 }
 
@@ -33,7 +33,7 @@ export const lampApi = createApi({
       query: () => "devices",
     }),
 
-    addDevice: builder.mutation<ILamp, Omit<ILamp, "guid">>({
+    addDevice: builder.mutation<ILamp, Omit<ILamp, "guid" | "animationGuids">>({
       invalidatesTags: ["devices"],
       query: (lampData) => ({
         url: `devices`,
