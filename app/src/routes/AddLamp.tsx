@@ -61,9 +61,9 @@ export default function AddLamp() {
 
     const lamp = {
       name: newName,
-      current_ip: newIp,
-      num_of_leds: parseInt(newNumOfLeds, 10),
-      mac_address: newMacAddress,
+      currentIP: newIp,
+      numOfLeds: parseInt(newNumOfLeds, 10),
+      macAddress: newMacAddress,
     }
 
     addDevice(lamp)

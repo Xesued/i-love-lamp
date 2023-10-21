@@ -1,28 +1,43 @@
-import { AnimationItem } from "engine/types"
-import { Schema, model } from "mongoose"
+import {
+  Attributes,
+  CreationOptional,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  Model,
+} from "sequelize"
 
-/**
- * Lamp animations are not a DB model.  This information
- * is in-memory only.
- */
-export interface ILampAnimations {
-  animationGuids: string[]
+import { sequelize } from "../setupMariaDB"
+
+export class LampModel extends Model<
+  InferAttributes<LampModel>,
+  InferCreationAttributes<LampModel>
+> {
+  // "Declare" so no class properites are emitted
+  declare guid: CreationOptional<string>
+  declare name: string
+  declare currentIP: string
+  declare macAddress: string
+  declare numOfLeds: number
 }
 
-export interface ILamp {
-  guid: string
-  name: string
-  current_ip: string
-  mac_address: string
-  num_of_leds: number
-}
+LampModel.init(
+  {
+    guid: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+      allowNull: false,
+    },
+    name: { type: DataTypes.TEXT, allowNull: false },
+    currentIP: { type: DataTypes.CHAR, allowNull: false },
+    macAddress: { type: DataTypes.CHAR, allowNull: false },
+    numOfLeds: { type: DataTypes.SMALLINT, allowNull: false },
+  },
+  {
+    tableName: "devices",
+    sequelize,
+  }
+)
 
-const schema = new Schema<ILamp>({
-  guid: { type: String, required: true },
-  name: { type: String, required: true },
-  current_ip: { type: String, required: true },
-  mac_address: { type: String, required: true },
-  num_of_leds: { type: Number, required: true },
-})
-
-export const LampModel = model<ILamp>("Lamp", schema)
+export type ILamp = Attributes<LampModel>

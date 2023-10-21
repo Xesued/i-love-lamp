@@ -3,13 +3,15 @@ import { Card, CardBody, Typography } from "@material-tailwind/react"
 import { ledToRGB } from "../../utils/colorUtils"
 
 type BlinkCardProps = {
+  name: string
   animation: BlinkAnimation
   isActive: boolean
   onClick: () => void
 }
 
 export function BlinkCard(props: BlinkCardProps) {
-  const { animation, isActive, onClick } = props
+  const { name, animation, isActive, onClick } = props
+  console.log("BLINK...", animation)
 
   let ledsStr = `Leds: ${
     !animation.startLed ? "Beginning" : animation.startLed
@@ -29,7 +31,7 @@ export function BlinkCard(props: BlinkCardProps) {
           <div className="flex flex-col justify-center gap-2">
             <div className="flex flex-col">
               <Typography variant="small">Type: Blink</Typography>
-              <Typography variant="h5">{animation.name}</Typography>
+              <Typography variant="h5">{name}</Typography>
             </div>
             <Typography className="text-xs">{ledsStr}</Typography>
           </div>

@@ -24,7 +24,7 @@ export async function getAnimations(
   _request: FastifyRequest,
   _reply: FastifyReply
 ): ApiResponse<IAnimation[]> {
-  const animations = await AnimationModel.find().exec()
+  const animations = await AnimationModel.findAll()
   return animations
 }
 
@@ -33,9 +33,9 @@ export async function removeAnimation(
   reply: FastifyReply
 ): ApiResponse<number> {
   const { animationGuid: guid } = request.params as { animationGuid: string }
-  const t = await AnimationModel.deleteOne({ guid })
+  const deletedCount = await AnimationModel.destroy({ where: { guid } })
 
-  if (t.deletedCount < 1) {
+  if (deletedCount < 1) {
     return createError(
       reply,
       `Couldn't find animation with guid: ${guid}`,
@@ -43,5 +43,5 @@ export async function removeAnimation(
     )
   }
 
-  return t.deletedCount
+  return deletedCount
 }

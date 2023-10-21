@@ -14,14 +14,12 @@ export type ColorGeneratorFunc = (
 ) => Generator<LedMap>
 
 export enum AnimationType {
-  BLINK = "Blink",
-  BOUNCE = "Bounce",
-  SOLID = "Solid",
+  BLINK = "BLINK",
+  BOUNCE = "BOUNCE",
+  SOLID = "SOLID",
 }
 
 export interface Animation {
-  id: string
-  name: string
   animationType: AnimationType
   startLed?: number
   endLed?: number
