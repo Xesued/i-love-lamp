@@ -7,7 +7,7 @@ import {
 } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
 
-import { useAddDeviceMutation, useGetDevicesQuery, useRemoveDeviceMutation } from "../api/lampApi"
+import { useGetDevicesQuery, useRemoveDeviceMutation } from "../api/lampApi"
 
 export default function LampList() {
   const navigate = useNavigate()
@@ -15,7 +15,7 @@ export default function LampList() {
   const { 
     data: lamps,
   } = useGetDevicesQuery()
-  const [removeDevice, removeResult] = useRemoveDeviceMutation()
+  const [removeDevice ] = useRemoveDeviceMutation()
 
   const handleDeleteLamp = (lampGuid: string) => {
     removeDevice(lampGuid)

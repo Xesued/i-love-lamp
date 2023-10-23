@@ -3,9 +3,11 @@ import { StatusCodes } from "http-status-codes"
 import { LampModel, ILamp } from "../models/lamp"
 import { createError } from "../utils/errors"
 import type { ApiResponse } from "../types"
-import { ColorEngine } from "engine"
+import { ColorEngine, rgbToRgbw } from "engine"
 import { buildColorSender } from "../utils/colorPusher"
 import { AnimationModel } from "../models/animation"
+import convert from "color-convert"
+import { RGBW } from "engine/types"
 
 const engines: Map<string, ColorEngine> = new Map()
 
@@ -81,7 +83,6 @@ export async function toggleAnimation(
       StatusCodes.NOT_FOUND
     )
 
-  console.log("FOUND DEVICE", lamp.name)
   const animation = await AnimationModel.findOne({
     where: { guid: animationGuid },
   })
@@ -92,20 +93,70 @@ export async function toggleAnimation(
       StatusCodes.NOT_FOUND
     )
 
-  console.log("FOUND ANIMATION", animation.name)
-
-  if (!engines.has(lamp.guid)) {
-    const newEngine = new ColorEngine(lamp.numOfLeds)
-    newEngine.run(buildColorSender(lamp.numOfLeds, lamp.currentIP))
-    engines.set(lamp.guid, newEngine)
-  }
-
-  const engine = engines.get(lamp.guid)
+  const engine = getOrSetEngine(engines, lamp)
   if (engine) {
-    console.log("APPLINING ANIMTAION")
     return engine.toggleAnimation(animation.guid, animation.details)
   }
 
   reply.statusCode = StatusCodes.INTERNAL_SERVER_ERROR
   return { error: "Applying animation failed... Could not create animation." }
 }
+
+/**
+ * Applies a solid color, rather than an animation
+ *
+ */
+export async function setSolidColor(
+  request: FastifyRequest,
+  reply: FastifyReply
+): ApiResponse<RGBW> {
+  const { deviceGuid } = request.params as {
+    deviceGuid: string
+  }
+  const color = request.body as RGBW
+
+  const lamp = await LampModel.findOne({ where: { guid: deviceGuid } })
+  if (!lamp)
+    return createError(
+      reply,
+      `Couldn't find lamp with id: ${deviceGuid}`,
+      StatusCodes.NOT_FOUND
+    )
+
+  const engine = getOrSetEngine(engines, lamp)
+  if (engine) {
+    engine.setSolidColor(color)
+    return color
+  }
+
+  return createError(
+    reply,
+    "Couldn't set color.",
+    StatusCodes.INTERNAL_SERVER_ERROR
+  )
+}
+
+function getOrSetEngine(
+  engines: Map<string, ColorEngine>,
+  lamp: ILamp
+): ColorEngine | undefined {
+  if (!engines.has(lamp.guid)) {
+    const newEngine = new ColorEngine(lamp.numOfLeds)
+    newEngine.setColorCollector(
+      buildColorSender(lamp.numOfLeds, lamp.currentIP)
+    )
+    engines.set(lamp.guid, newEngine)
+  }
+
+  return engines.get(lamp.guid)
+}
+
+// export async function setBrightness(
+//   request: FastifyRequest,
+//   reply: FastifyReply
+// ): ApiResponse<string[]> {
+//   const { deviceGuid, brightness } = request.params as {
+//     deviceGuid: string
+//     brightness: string
+//   }
+// }

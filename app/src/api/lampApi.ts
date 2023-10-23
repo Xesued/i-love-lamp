@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import { AnimationItem } from "engine/types"
-import { stringify } from "uuid"
+import { AnimationItem, RGBW } from "engine/types"
 
 // TODO: Build a common "API" schema shared between
 // the server an app
@@ -18,6 +17,8 @@ export interface IAnimation {
   name: string
   details: AnimationItem
 }
+
+export type IAnimationNew = Omit<IAnimation, "guid">
 
 const BASE_URL = import.meta.env.VITE_API_URL
 
@@ -54,6 +55,32 @@ export const lampApi = createApi({
       query: () => "animations",
     }),
 
+    setSolidColor: builder.mutation<string, { lampGuid: string; color: RGBW }>({
+      invalidatesTags: ["animations"],
+      query: ({ lampGuid, color }) => ({
+        url: `devices/${lampGuid}/color`,
+        method: "POST",
+        body: color,
+      }),
+    }),
+
+    addAnimation: builder.mutation<IAnimation, Omit<IAnimation, "guid">>({
+      invalidatesTags: ["animations"],
+      query: (animationData) => ({
+        url: "animations",
+        method: "POST",
+        body: animationData,
+      }),
+    }),
+
+    removeAnimation: builder.mutation<string, string>({
+      invalidatesTags: ["animations"],
+      query: (animationGuid) => ({
+        url: `animations/${animationGuid}`,
+        method: "DELETE",
+      }),
+    }),
+
     toggleAnimation: builder.mutation<
       string,
       { deviceGuid: string; animationGuid: string }
@@ -64,18 +91,6 @@ export const lampApi = createApi({
         url: `devices/${deviceGuid}/toggleAnimation/${animationGuid}`,
       }),
     }),
-
-    // /**
-    //  * Get the details of a specific device
-    //  * TODO: with so few devices, I think just the list works for now
-    //  */
-    // getDevice: builder.query<AnimationItem, string>({
-    //   query: (name) => `${name}?`,
-    // }),
-
-    // removeDevice: builder.mutation<string, string>({
-    //   query: ()
-    // })
   }),
 })
 
@@ -84,5 +99,8 @@ export const {
   useAddDeviceMutation,
   useRemoveDeviceMutation,
   useGetAnimationsQuery,
+  useRemoveAnimationMutation,
   useToggleAnimationMutation,
+  useSetSolidColorMutation,
+  useAddAnimationMutation,
 } = lampApi

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import { Button, Input, Typography } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
 
-import { addLamp } from "../state/lampSlice"
 import { useAddDeviceMutation } from "../api/lampApi"
 
 type FormErrors = {

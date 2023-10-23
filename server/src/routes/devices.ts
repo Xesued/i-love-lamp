@@ -9,6 +9,7 @@ export const deviceRoutes: FastifyPluginCallback = (fastify, ops, done) => {
     "/:deviceGuid/toggleAnimation/:animationGuid",
     deviceController.toggleAnimation
   )
+  fastify.post("/:deviceGuid/color", deviceController.setSolidColor)
   fastify.delete("/:deviceGuid", deviceController.deleteDevice)
   fastify.post("/scan", deviceController.scanForDevices)
   done()

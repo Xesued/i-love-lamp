@@ -6,11 +6,11 @@ import {
   ListItemSuffix,
 } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
-import { useGetAnimationsQuery } from "../api/lampApi"
-// import { removeAnimation } from "../state/animationSlice"
+import { useGetAnimationsQuery, useRemoveAnimationMutation } from "../api/lampApi"
 
 export default function Config() {
   const navigate = useNavigate()
+  const [ removeAnimation, removeResults ] = useRemoveAnimationMutation()
   const {
     data: animations,
   } = useGetAnimationsQuery()
@@ -23,8 +23,8 @@ export default function Config() {
     navigate(`/animations/edit/${id}`)
   }
 
-  const handleDelete = (id: string) => {
-    // dispatch(removeAnimation(id))
+  const handleDelete = (animationGuid: string) => {
+    removeAnimation(animationGuid)
   }
 
   if (!animations) {
