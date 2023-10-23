@@ -6,6 +6,8 @@ import {
   type RGBW,
 } from "./types"
 
+export * from "./utils"
+
 import * as Animations from "./animations"
 
 function getLeds(
@@ -32,10 +34,21 @@ export class ColorEngine {
   private _interval: any = null
   private _delayMs: number = 32
   private _blankLeds: RGBW[]
+  private _colorCollector: (leds: RGBW[]) => void
 
   constructor(numOfLeds: number) {
     this._numOfLeds = numOfLeds
     this._blankLeds = Array(this._numOfLeds).fill([0, 0, 0, 0])
+    this._colorCollector = () => {}
+  }
+
+  setColorCollector(collector: (leds: RGBW[]) => void) {
+    this._colorCollector = collector
+  }
+
+  setSolidColor(color: RGBW) {
+    this.stop()
+    this._colorCollector(this._blankLeds.map((b) => color))
   }
 
   addAnimation(id: string, animationFunc: ColorGeneratorFunc) {
@@ -44,6 +57,7 @@ export class ColorEngine {
       tickMs: this._delayMs,
     })
     this._animations.set(id, animation)
+    this.run()
   }
 
   removeAnimation(id: string) {
@@ -123,9 +137,10 @@ export class ColorEngine {
     }
   }
 
-  run(cb: (colors: RGBW[]) => void) {
+  run() {
     if (this._interval) {
       console.warn("Already running...")
+      return
     }
 
     this._interval = setInterval(() => {
@@ -147,7 +162,7 @@ export class ColorEngine {
         return l
       })
 
-      cb(finalRGBW)
+      this._colorCollector(finalRGBW)
     }, this._delayMs)
   }
 

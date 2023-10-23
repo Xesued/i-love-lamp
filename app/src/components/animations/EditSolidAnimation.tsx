@@ -1,50 +1,50 @@
 import { useEffect, useState } from "react"
 import type { ChangeEvent } from "react"
-import { AnimationType, BounceAnimation } from "engine/types"
+import { AnimationType, SolidAnimation } from "engine/types"
 import { rgbToRgbw, rgbwToRgb } from "engine/utils"
 import { Button, Input } from "@material-tailwind/react"
 import convert from "color-convert"
 import { ColorPickerInput } from "../ColorPickerInput"
 import { IAnimationNew } from "../../api/lampApi"
 
-type BounceFormProps = {
+type EditSolidAnimationProps = {
   name?: string
-  bounceOpts?: BounceAnimation
+  solidOpts?: SolidAnimation
   onSubmit: (opts: IAnimationNew) => void
 }
 
-type BounceFormOpts = {
-  color: string
+/**
+ * The Form state for solid animation options
+ *
+ */
+type SolidFormOpts = {
   name: string
-  speed: string
+  color: string
   endLed: string
   startLed: string
 }
 
-export function EditBounceAnimation(props: BounceFormProps) {
-  const { onSubmit, name, bounceOpts } = props
-
-  const [opts, setOpts] = useState<BounceFormOpts>({
-    color: convert.rgb.hex([...rgbwToRgb(bounceOpts?.color || [0, 0, 0, 0])]),
-    name: name || "",
-    speed: "" + bounceOpts?.speed,
-    endLed: "" + bounceOpts?.endLed,
-    startLed: "" + bounceOpts?.startLed,
+export function EditSolidAnimation(props: EditSolidAnimationProps) {
+  const { onSubmit, name, solidOpts } = props
+  const [opts, setOpts] = useState<SolidFormOpts>({
+    color: "",
+    name: "",
+    endLed: "",
+    startLed: "",
   })
 
   useEffect(() => {
-    if (bounceOpts) {
+    if (solidOpts) {
       setOpts({
         color: convert.rgb.hex([
-          ...rgbwToRgb(bounceOpts?.color || [0, 0, 0, 0]),
+          ...rgbwToRgb(solidOpts?.color || [0, 0, 0, 0]),
         ]),
         name: name || "",
-        speed: "" + bounceOpts?.speed,
-        endLed: "" + bounceOpts?.endLed,
-        startLed: "" + bounceOpts?.startLed,
+        endLed: "" + solidOpts?.endLed,
+        startLed: "" + solidOpts?.startLed,
       })
     }
-  }, [bounceOpts])
+  }, [solidOpts])
 
   const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     const name = event.currentTarget.value
@@ -59,17 +59,6 @@ export function EditBounceAnimation(props: BounceFormProps) {
       ...opts,
       color,
     })
-  }
-
-  const handleSpeedChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const speedStr = event.currentTarget.value
-    const speed = parseInt(speedStr)
-    if (speedStr === "" || !isNaN(speed)) {
-      setOpts({
-        ...opts,
-        speed: speedStr,
-      })
-    }
   }
 
   const handleEndLedChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -95,17 +84,16 @@ export function EditBounceAnimation(props: BounceFormProps) {
   }
 
   const handleAdd = () => {
-    const bounceOpts: BounceAnimation = {
-      animationType: AnimationType.BOUNCE,
+    const solidOpts: SolidAnimation = {
+      animationType: AnimationType.SOLID,
       color: rgbToRgbw(convert.hex.rgb(opts.color)),
-      speed: parseInt(opts.speed),
       endLed: parseInt(opts.endLed),
       startLed: parseInt(opts.startLed),
     }
 
     onSubmit({
       name: opts.name,
-      details: bounceOpts,
+      details: solidOpts,
     })
   }
 
@@ -123,12 +111,6 @@ export function EditBounceAnimation(props: BounceFormProps) {
         onChange={handleColorChange}
       />
       <Input
-        label="Speed"
-        value={opts.speed}
-        onChange={handleSpeedChange}
-        crossOrigin={undefined}
-      ></Input>
-      <Input
         label="Start Led"
         value={opts?.startLed}
         onChange={handleStartLedChange}
@@ -141,7 +123,7 @@ export function EditBounceAnimation(props: BounceFormProps) {
         crossOrigin={undefined}
       ></Input>
       <Button color="blue" onClick={handleAdd}>
-        {bounceOpts ? "Edit" : "Add"} Animation
+        {solidOpts ? "Edit" : "Add"} Animation
       </Button>
     </div>
   )

@@ -14,7 +14,7 @@ function handleConnection(ws: WebSocket) {
 }
 
 /**
- * Handles incoming messags from a socket.
+ * Handles incoming messagse from a socket.
  *
  * @param data Buffer - The first 4 bytes make up the IP address
  * of the device we want to stream light to.  The following bytes
