@@ -10,6 +10,8 @@ import {
   TabsBody,
   Tab,
   TabPanel,
+  Card,
+  CardBody,
 } from "@material-tailwind/react"
 
 import { RgbColorPicker, RgbColor } from "react-colorful"
@@ -17,6 +19,7 @@ import { RgbColorPicker, RgbColor } from "react-colorful"
 import { AnimationCard } from "../components/animations/AnimationCard"
 import {
   IAnimation,
+  useBulkSetAnimationsMutation,
   useGetAnimationsQuery,
   useGetDevicesQuery,
   useSetSolidColorMutation,
@@ -51,9 +54,11 @@ export function useThrottle<T>(value: T, interval = 500) {
 function App() {
   const { data: lamps } = useGetDevicesQuery()
   const { data: animations } = useGetAnimationsQuery()
-  const [toggleLampAnimation] = useToggleAnimationMutation()
+  // const [toggleLampAnimation] = useToggleAnimationMutation()
+  const [selectedAnimations, setSelectedAnimations] = useState<string[]>([])
+  const [bulkSetAnimations] = useBulkSetAnimationsMutation()
   const [setSolidColorMutation] = useSetSolidColorMutation()
-  const [selectedLampGuid, setSelectedLampGuid] = useState<string | null>(null)
+  const [selectedLampGuids, setSelectedLampGuids] = useState<string[]>([])
   const [solidColor, setSolidColor] = useState<RgbColor>({
     r: 200,
     g: 150,
@@ -62,26 +67,50 @@ function App() {
 
   const throttledColor = useThrottle(solidColor, 500)
   useEffect(() => {
-    if (selectedLampGuid && throttledColor) {
-      setSolidColorMutation({
-        lampGuid: selectedLampGuid,
-        color: [solidColor.r, solidColor.g, solidColor.b, 0],
+    if (selectedLampGuids.length > 0 && throttledColor) {
+      // TODO: Batch?
+      selectedLampGuids.forEach((lGuid) => {
+        setSolidColorMutation({
+          lampGuid: lGuid,
+          color: [solidColor.r, solidColor.g, solidColor.b, 0],
+        })
       })
     }
-  }, [throttledColor, selectedLampGuid])
+  }, [throttledColor, selectedLampGuids])
 
   const handleSelectLamp = (lampGuid: string | undefined) => {
-    lampGuid ? setSelectedLampGuid(lampGuid) : setSelectedLampGuid(null)
+    if (lampGuid) {
+      const lampIndex = selectedLampGuids.findIndex((lg) => lg === lampGuid)
+      if (lampIndex > -1) {
+        setSelectedLampGuids([
+          ...selectedLampGuids.slice(0, lampIndex),
+          ...selectedLampGuids.slice(lampIndex + 1),
+        ])
+      } else {
+        setSelectedLampGuids([...selectedLampGuids, lampGuid])
+      }
+    }
   }
 
   const handleToggleAnimation = (animation: IAnimation) => {
-    if (!selectedLampGuid || !lamps) return
-    const lamp = lamps.find((l) => l.guid === selectedLampGuid)
-    if (!lamp) return
+    if (!lamps) return
 
-    toggleLampAnimation({
+    const aIndex = selectedAnimations.indexOf(animation.guid)
+    const turnOn = aIndex === -1
+    if (turnOn) {
+      // Add to the selected animations
+      setSelectedAnimations([...selectedAnimations, animation.guid])
+    } else {
+      setSelectedAnimations([
+        ...selectedAnimations.slice(0, aIndex),
+        ...selectedAnimations.slice(aIndex + 1),
+      ])
+    }
+
+    bulkSetAnimations({
+      deviceGuids: selectedLampGuids,
       animationGuid: animation.guid,
-      deviceGuid: selectedLampGuid,
+      isOn: turnOn,
     })
   }
 
@@ -90,26 +119,29 @@ function App() {
   }
 
   const hasLamps = !!lamps && lamps.length > 0
-  const selectedLamp = selectedLampGuid
-    ? lamps?.find((l) => l.guid === selectedLampGuid)
-    : null
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
         {hasLamps ? (
-          <Select label="Selected Lamp" onChange={handleSelectLamp}>
+          <div className="flex flex-row gap-2 justify-center">
             {lamps.map((lamp) => (
-              <Option value={lamp.guid}>{lamp.name}</Option>
+              <Card
+                onClick={() => handleSelectLamp(lamp.guid)}
+                variant="filled"
+                color={selectedLampGuids.includes(lamp.guid) ? "blue" : "white"}
+              >
+                <CardBody>{lamp.name}</CardBody>
+              </Card>
             ))}
-          </Select>
+          </div>
         ) : (
           <Alert color="red">
             No lamps. <Link to="add-lamp">Add one.</Link>
           </Alert>
         )}
 
-        {selectedLamp && (
+        {selectedLampGuids.length > 0 && (
           <Tabs value="animation">
             <TabsHeader>
               <Tab value={"animations"}>Animations</Tab>
@@ -123,9 +155,7 @@ function App() {
                       <AnimationCard
                         onClick={() => handleToggleAnimation(animation)}
                         animation={animation}
-                        isActive={selectedLamp.animationGuids.includes(
-                          animation.guid,
-                        )}
+                        isActive={selectedAnimations.includes(animation.guid)}
                       />
                     ))
                   ) : (
@@ -138,7 +168,7 @@ function App() {
                   Setting a color will turn off all other animations
                 </Typography>
                 <RgbColorPicker
-                  value={solidColor}
+                  // color={solidColor}
                   onChange={handleColorChange}
                 />
               </TabPanel>
