@@ -73,6 +73,22 @@ export const lampApi = createApi({
       }),
     }),
 
+    bulkSetAnimations: builder.mutation<
+      string[],
+      { deviceGuids: string[]; animationGuid: string; isOn: boolean }
+    >({
+      invalidatesTags: ["devices"],
+      query: ({ deviceGuids, animationGuid, isOn }) => ({
+        method: "POST",
+        url: `devices/setBulkAnimations`,
+        body: {
+          deviceGuids,
+          animationGuid,
+          isOn,
+        },
+      }),
+    }),
+
     removeAnimation: builder.mutation<string, string>({
       invalidatesTags: ["animations"],
       query: (animationGuid) => ({
@@ -103,4 +119,5 @@ export const {
   useToggleAnimationMutation,
   useSetSolidColorMutation,
   useAddAnimationMutation,
+  useBulkSetAnimationsMutation,
 } = lampApi

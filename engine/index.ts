@@ -51,7 +51,7 @@ export class ColorEngine {
     this._colorCollector(this._blankLeds.map((b) => color))
   }
 
-  addAnimation(id: string, animationFunc: ColorGeneratorFunc) {
+  addAnimationFunc(id: string, animationFunc: ColorGeneratorFunc) {
     const animation = animationFunc({
       numOfLeds: this._numOfLeds,
       tickMs: this._delayMs,
@@ -60,8 +60,19 @@ export class ColorEngine {
     this.run()
   }
 
+  addAnimation(animationGuid: string, animationDef: AnimationItem) {
+    if (this._animations.has(animationGuid)) {
+      return this.getAnimationGuids()
+    }
+
+    const colorFunc = ColorEngine.buildAnimation(animationDef, this._numOfLeds)
+    if (colorFunc) this.addAnimationFunc(animationGuid, colorFunc)
+    return this.getAnimationGuids()
+  }
+
   removeAnimation(id: string) {
     this._animations.delete(id)
+    return this.getAnimationGuids()
   }
 
   /**
@@ -92,7 +103,7 @@ export class ColorEngine {
         animationDef,
         this._numOfLeds
       )
-      if (colorFunc) this.addAnimation(animationGuid, colorFunc)
+      if (colorFunc) this.addAnimationFunc(animationGuid, colorFunc)
     }
 
     return this.getAnimationGuids()

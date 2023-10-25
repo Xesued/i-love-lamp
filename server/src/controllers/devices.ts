@@ -8,6 +8,7 @@ import { buildColorSender } from "../utils/colorPusher"
 import { AnimationModel } from "../models/animation"
 import convert from "color-convert"
 import { RGBW } from "engine/types"
+import { Op } from "sequelize"
 
 const engines: Map<string, ColorEngine> = new Map()
 
@@ -58,6 +59,63 @@ export async function deleteDevice(
   }
 
   return deletedCount
+}
+
+/**
+ * Bulk set an animations for a list of devices.
+ *
+ * @param request
+ * @param reply
+ * @returns
+ */
+export async function setAnimations(
+  request: FastifyRequest,
+  reply: FastifyReply
+): ApiResponse<number> {
+  const { deviceGuids, animationGuid, isOn } = request.body as {
+    deviceGuids: string[]
+    animationGuid: string
+    isOn: boolean
+  }
+
+  const lamps = await LampModel.findAll({
+    where: { guid: { [Op.in]: deviceGuids } },
+  })
+  if (!lamps)
+    return createError(
+      reply,
+      `Couldn't find lamps with id`,
+      StatusCodes.NOT_FOUND
+    )
+
+  lamps.forEach(async (lamp) => {
+    const engine = getOrSetEngine(engines, lamp)
+    if (!engine) {
+      reply.statusCode = StatusCodes.INTERNAL_SERVER_ERROR
+      return {
+        error: "Applying animation failed... Could not create animation.",
+      }
+    }
+
+    // Remove without having to query animation if we are removing it.
+    if (!isOn) {
+      return engine.removeAnimation(animationGuid)
+    }
+
+    const animation = await AnimationModel.findOne({
+      where: { guid: animationGuid },
+    })
+    if (!animation)
+      return createError(
+        reply,
+        `Couldn't find animation with id: ${animationGuid}`,
+        StatusCodes.NOT_FOUND
+      )
+
+    engine.addAnimation(animation.guid, animation.details)
+  })
+
+  return lamps.length
 }
 
 /**
