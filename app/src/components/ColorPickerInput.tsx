@@ -1,6 +1,6 @@
 import { Typography } from "@material-tailwind/react"
-import { CirclePicker } from "react-color"
 import type { ColorChangeHandler } from "react-color"
+import { CirclePicker } from "react-color"
 
 type ColorPickerInputProps = {
   onChange: (hex: string) => void
@@ -12,7 +12,6 @@ export function ColorPickerInput(props: ColorPickerInputProps) {
   const { onChange, label, value } = props
 
   const handleColorChange: ColorChangeHandler = (color) => {
-    console.log(color)
     onChange(color.hex)
   }
 

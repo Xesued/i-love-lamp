@@ -1,5 +1,5 @@
-import { BlinkAnimation } from "engine/types"
 import { Card, CardBody, Typography } from "@material-tailwind/react"
+import { BlinkAnimation } from "engine/types"
 import { ledToRGB } from "../../utils/colorUtils"
 
 type BlinkCardProps = {
@@ -11,7 +11,6 @@ type BlinkCardProps = {
 
 export function BlinkCard(props: BlinkCardProps) {
   const { name, animation, isActive, onClick } = props
-  console.log("BLINK...", animation)
 
   let ledsStr = `Leds: ${
     !animation.startLed ? "Beginning" : animation.startLed
