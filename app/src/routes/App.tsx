@@ -1,30 +1,27 @@
-import { useEffect, useRef, useState } from "react"
-import { Link } from "react-router-dom"
 import {
   Alert,
-  Select,
-  Option,
-  Typography,
-  Tabs,
-  TabsHeader,
-  TabsBody,
-  Tab,
-  TabPanel,
   Card,
   CardBody,
+  Tab,
+  TabPanel,
+  Tabs,
+  TabsBody,
+  TabsHeader,
+  Typography,
 } from "@material-tailwind/react"
+import { useEffect, useRef, useState } from "react"
+import { Link } from "react-router-dom"
 
-import { RgbColorPicker, RgbColor } from "react-colorful"
-
-import { AnimationCard } from "../components/animations/AnimationCard"
+import { RGBW } from "engine/types"
 import {
   IAnimation,
   useBulkSetAnimationsMutation,
   useGetAnimationsQuery,
   useGetDevicesQuery,
   useSetSolidColorMutation,
-  useToggleAnimationMutation,
 } from "../api/lampApi"
+import { ColorPicker } from "../components/ColorPicker"
+import { AnimationCard } from "../components/animations/AnimationCard"
 
 // Adapted from:
 // https://github.com/uidotdev/usehooks/blob/main/index.js
@@ -54,29 +51,26 @@ export function useThrottle<T>(value: T, interval = 500) {
 function App() {
   const { data: lamps } = useGetDevicesQuery()
   const { data: animations } = useGetAnimationsQuery()
-  // const [toggleLampAnimation] = useToggleAnimationMutation()
   const [selectedAnimations, setSelectedAnimations] = useState<string[]>([])
   const [bulkSetAnimations] = useBulkSetAnimationsMutation()
   const [setSolidColorMutation] = useSetSolidColorMutation()
   const [selectedLampGuids, setSelectedLampGuids] = useState<string[]>([])
-  const [solidColor, setSolidColor] = useState<RgbColor>({
-    r: 200,
-    g: 150,
-    b: 0,
-  })
+  const [solidColor, setSolidColor] = useState<RGBW>([200, 150, 0, 0])
 
+  console.log("solid color", solidColor)
   const throttledColor = useThrottle(solidColor, 500)
   useEffect(() => {
+    console.log("COLOR THROTTLE CHANGE")
     if (selectedLampGuids.length > 0 && throttledColor) {
       // TODO: Batch?
       selectedLampGuids.forEach((lGuid) => {
         setSolidColorMutation({
           lampGuid: lGuid,
-          color: [solidColor.r, solidColor.g, solidColor.b, 0],
+          color: solidColor,
         })
       })
     }
-  }, [throttledColor, selectedLampGuids])
+  }, [throttledColor])
 
   const handleSelectLamp = (lampGuid: string | undefined) => {
     if (lampGuid) {
@@ -114,7 +108,7 @@ function App() {
     })
   }
 
-  const handleColorChange = (newColor: RgbColor) => {
+  const handleColorChange = (newColor: RGBW) => {
     setSolidColor(newColor)
   }
 
@@ -141,40 +135,37 @@ function App() {
           </Alert>
         )}
 
-        {selectedLampGuids.length > 0 && (
-          <Tabs value="animation">
-            <TabsHeader>
-              <Tab value={"animations"}>Animations</Tab>
-              <Tab value={"solid"}>Color</Tab>
-            </TabsHeader>
-            <TabsBody>
-              <TabPanel value="animations">
-                <div className="flex flex-col gap-3">
-                  {animations ? (
-                    animations.map((animation) => (
-                      <AnimationCard
-                        onClick={() => handleToggleAnimation(animation)}
-                        animation={animation}
-                        isActive={selectedAnimations.includes(animation.guid)}
-                      />
-                    ))
-                  ) : (
-                    <div> NO ANIMATIONS BUDDY</div>
-                  )}
-                </div>
-              </TabPanel>
-              <TabPanel value="solid">
+        <Tabs value="animations">
+          <TabsHeader>
+            <Tab value={"animations"}>Animations</Tab>
+            <Tab value={"solid"}>Color</Tab>
+          </TabsHeader>
+          <TabsBody>
+            <TabPanel value="animations">
+              <div className="flex flex-col gap-3">
+                {animations ? (
+                  animations.map((animation) => (
+                    <AnimationCard
+                      onClick={() => handleToggleAnimation(animation)}
+                      animation={animation}
+                      isActive={selectedAnimations.includes(animation.guid)}
+                    />
+                  ))
+                ) : (
+                  <div> NO ANIMATIONS BUDDY</div>
+                )}
+              </div>
+            </TabPanel>
+            <TabPanel value="solid">
+              <div className="flex flex-col items-center">
                 <Typography variant="small" color="gray">
                   Setting a color will turn off all other animations
                 </Typography>
-                <RgbColorPicker
-                  // color={solidColor}
-                  onChange={handleColorChange}
-                />
-              </TabPanel>
-            </TabsBody>
-          </Tabs>
-        )}
+                <ColorPicker onChange={handleColorChange} />
+              </div>
+            </TabPanel>
+          </TabsBody>
+        </Tabs>
       </div>
     </div>
   )
