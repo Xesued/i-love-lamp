@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react"
 import { Input } from "@material-tailwind/react"
+import { useEffect, useState } from "react"
 
 import { ColorEngine } from "engine"
 import { blink } from "engine/animations/blink"
-import { solid } from "engine/animations/solid"
-import { RGBW } from "engine/types"
 import * as colors from "engine/colors"
+import { RGBW } from "engine/types"
 
 import { ledToRGB } from "../utils/colorUtils"
 
@@ -55,21 +54,9 @@ export default function Animation() {
       solidLeds = Array.from(Array(solidLed).keys())
     }, 100)
 
-    engine.addAnimation(
-      "1123141h4kljA",
-      solid({
-        leds: Array.from(Array(numOfPixels).keys()).filter(
-          (i) => i > numOfPixels / 2,
-        ),
-        updateLeds: () => solidLeds,
-        color: [...colors.TEAL, 0],
-      }),
-    )
-
     engine.run(setLeds)
 
     return () => {
-      console.log("STOPING ENGINE")
       engine.stop()
       clearInterval(intv)
     }
