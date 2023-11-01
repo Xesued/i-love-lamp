@@ -57,10 +57,8 @@ function App() {
   const [selectedLampGuids, setSelectedLampGuids] = useState<string[]>([])
   const [solidColor, setSolidColor] = useState<RGBW>([200, 150, 0, 0])
 
-  console.log("solid color", solidColor)
   const throttledColor = useThrottle(solidColor, 500)
   useEffect(() => {
-    console.log("COLOR THROTTLE CHANGE")
     if (selectedLampGuids.length > 0 && throttledColor) {
       // TODO: Batch?
       selectedLampGuids.forEach((lGuid) => {

@@ -122,7 +122,7 @@ export function blink(opts: BlinkOptions): ColorGeneratorFunc {
           break
 
         default:
-          console.log("HMMM....")
+          console.error("Unknown state")
       }
       yield currentValues
     }

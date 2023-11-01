@@ -5,6 +5,8 @@ import type {
   LedMap,
 } from "../types"
 
+// TODO: Remove solid as an animation.
+
 export type SolidOptions = {
   /**
    * The index of the LEDs we want to control

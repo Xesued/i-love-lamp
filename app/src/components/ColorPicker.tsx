@@ -4,8 +4,6 @@ import { Slider, Typography } from "@material-tailwind/react"
 import { RGBW } from "engine/types"
 import { ColorResult, HuePicker } from "react-color"
 
-import "./ColorPicker.css"
-
 interface ColorPickerProps {
   onChange: (color: RGBW) => void
 }
@@ -24,7 +22,6 @@ export function ColorPicker(props: ColorPickerProps) {
   ])
 
   useEffect(() => {
-    console.log("NEW COLORE CHANGE", color)
     const brightnessPercentage = brightness / 100
     const colorToUse: RGBW =
       brightness === 0
@@ -35,12 +32,7 @@ export function ColorPicker(props: ColorPickerProps) {
             Math.floor(color[2] * brightnessPercentage),
             0, // White handled below
           ]
-    // const colorToUse: RGBW = [...color]
-
     colorToUse[3] = Math.floor(MAX_BRIGHTNESS * (whiteBrightness / 100))
-
-    console.log("NEW COLORE CHANGE", colorToUse)
-
     onChange(colorToUse)
   }, [color, brightness, whiteBrightness])
 
@@ -48,10 +40,6 @@ export function ColorPicker(props: ColorPickerProps) {
     const rgb = newColor.rgb
     setColor([rgb.r, rgb.g, rgb.b, color[3]])
   }
-
-  // const handleRgbChange = (newColor: RgbColor) => {
-  //   setColor([newColor.r, newColor.g, newColor.b, color[3]])
-  // }
 
   const handleRgbBrightness = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget
@@ -66,18 +54,11 @@ export function ColorPicker(props: ColorPickerProps) {
   }
 
   return (
-    <div className="i-love-lamp-colorpicker">
-      <Typography>Hue</Typography>
-      {/* <RgbColorPicker
-        color={{ r: color[0], g: color[1], b: color[2] }}
-        onChange={handleRgbChange}
-      /> */}
-
+    <div>
       <HuePicker
         color={{ r: color[0], g: color[1], b: color[2] }}
         onChange={handleRgbChange}
       />
-
       <Typography>Brightness</Typography>
       <Slider value={brightness} onChange={handleRgbBrightness} />
 
