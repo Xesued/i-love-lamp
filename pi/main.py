@@ -3,7 +3,7 @@ import network
 import usocket as socket
 from micropython import const
 from commander import Commander
-from config import WIFI_SSID, WIFI_PASSWORD, LED_COUNT, PORT, GPIO_PIN
+from config import WIFI_SSID, WIFI_PASSWORD, LED_COUNT, UDP_PORT, GPIO_PIN, LED_SIZE, COMMAND_SIZE
 
 RED = const((255, 0, 0,0))
 WHITE = const((0, 0, 0,100))
@@ -71,30 +71,41 @@ def color_ip(commander):
 
 wlan = connectToWifi()
 ip = wlan.ifconfig()[0]
-s = getSocket(ip, PORT)
+mac = network.WLAN().config('mac')
+
+print('MAC', mac, len(mac), list(mac))
+
+s = getSocket(ip, UDP_PORT)
 s.settimeout(2)
 
 ip_bits = bin(int(ip.split('.')[-1]))
 ip_leds = [to_color(i) for i in ip_bits]
 
-commander = Commander(LED_COUNT, GPIO_PIN)
+commander = Commander(LED_COUNT, GPIO_PIN, list(mac))
 color_ip(commander)
 
 # deref for performance
 ticks_us = utime.ticks_us
 parse = commander.parse
-recv = s.recv
+recv = s.recvfrom
+sendto = s.sendto
+
+# There are a few commands like to send that are not pixel commands.
+# 1. Ping - Want to see if the device is still connected.  Also used
+# for discoverability.  Returns the number of LEDs connected.
+# 2. Leds - Light up the LEDs
+
 
 while True:
-    try:    
-        data = recv(LED_COUNT * 4)
-        start = ticks_us()
-        parse(data)
+    try: 
+        data, addr = recv(LED_COUNT * LED_SIZE + 3) 
+        res = parse(data)
+        sendto(res, addr)
 
     except OSError as e:
         p=1 # No noop
+
     except Exception as e:
         print("Failed to execute command", type(e), e)
-    # utime.sleep_ms(10)
     
 
