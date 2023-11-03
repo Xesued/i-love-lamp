@@ -199,9 +199,7 @@ function getOrSetEngine(
 ): ColorEngine | undefined {
   if (!engines.has(lamp.guid)) {
     const newEngine = new ColorEngine(lamp.numOfLeds)
-    newEngine.setColorCollector(
-      buildColorSender(lamp.numOfLeds, lamp.currentIP)
-    )
+    newEngine.setColorCollector(buildColorSender(lamp.currentIP))
     engines.set(lamp.guid, newEngine)
   }
 
