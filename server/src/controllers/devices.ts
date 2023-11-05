@@ -4,7 +4,7 @@ import { LampModel, ILamp } from "../models/lamp"
 import { createError } from "../utils/errors"
 import type { ApiResponse } from "../types"
 import { ColorEngine } from "engine"
-import { buildColorSender } from "../utils/colorPusher"
+import { buildColorSender, Scanner, client } from "../utils/colorPusher"
 import { AnimationModel } from "../models/animation"
 import { RGBW } from "engine/types"
 import { Op } from "sequelize"
@@ -26,9 +26,21 @@ export async function getDevices(
 export async function scanForDevices(
   request: FastifyRequest,
   reply: FastifyReply
-): ApiResponse<ILamp[]> {
+): ApiResponse<any> {
+  let scanner = new Scanner("192.168.12", client)
+  console.log("Scaning...")
+  try {
+    let results = await scanner.scan()
+    console.log("Results", results)
+    return results
+  } catch (e) {
+    console.log("Error occured", e)
+  }
+
   return createError(reply, "Not Implemented", StatusCodes.NOT_IMPLEMENTED)
 }
+
+const META_BYTES = 3
 
 export async function createDevice(
   request: FastifyRequest,
@@ -205,13 +217,3 @@ function getOrSetEngine(
 
   return engines.get(lamp.guid)
 }
-
-// export async function setBrightness(
-//   request: FastifyRequest,
-//   reply: FastifyReply
-// ): ApiResponse<string[]> {
-//   const { deviceGuid, brightness } = request.params as {
-//     deviceGuid: string
-//     brightness: string
-//   }
-// }

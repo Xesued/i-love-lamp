@@ -98,7 +98,7 @@ sendto = s.sendto
 
 while True:
     try: 
-        data, addr = recv(LED_COUNT * LED_SIZE + 3) 
+        data, addr = recv(LED_COUNT * LED_SIZE + 3)
         res = parse(data)
         sendto(res, addr)
 
