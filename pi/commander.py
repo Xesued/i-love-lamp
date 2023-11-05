@@ -25,6 +25,7 @@ class Commander:
         """
         
         cmd = command_bytes[0]
+        print(command_bytes)
         rsp = list([command_bytes[1], command_bytes[2]])
 
         if cmd == 1:
