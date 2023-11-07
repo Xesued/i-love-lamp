@@ -1,16 +1,17 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
+import { Provider } from "react-redux"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { store } from "./state/store"
-import { Provider } from "react-redux"
 
-import App from "./routes/App"
-import Lamps from "./routes/Lamps"
-import AddLamp from "./routes/AddLamp"
-import Animations from "./routes/Animations"
 import AddAnimation from "./routes/AddAnimation"
-import TestAnimations from "./routes/TestAnimations"
+import Animations from "./routes/Animations"
+import App from "./routes/App"
+import DeviceAdd from "./routes/DeviceAdd.tsx"
+import DeviceEdit from "./routes/DeviceEdit.tsx"
+import Devices from "./routes/Devices.tsx"
 import Root from "./routes/Root.tsx"
+import TestAnimations from "./routes/TestAnimations"
 
 import { ThemeProvider } from "@material-tailwind/react"
 
@@ -50,14 +51,25 @@ const router = createBrowserRouter([
         ],
       },
       {
-        path: "lamps",
-        element: <Lamps />,
+        path: "devices",
         errorElement: <ErrorPage />,
-      },
-      {
-        path: "add-lamp",
-        element: <AddLamp />,
-        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <Devices />,
+          },
+          {
+            path: "new",
+            element: <DeviceAdd />,
+          },
+          {
+            path: "edit/:deviceGuid",
+            loader: ({ params }) => {
+              return params
+            },
+            element: <DeviceEdit />,
+          },
+        ],
       },
       {
         path: "test",

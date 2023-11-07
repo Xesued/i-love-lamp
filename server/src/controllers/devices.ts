@@ -4,17 +4,24 @@ import { LampModel, ILamp } from "../models/lamp"
 import { createError } from "../utils/errors"
 import type { ApiResponse } from "../types"
 import { ColorEngine } from "engine"
-import { buildColorSender, Scanner, client } from "../utils/colorPusher"
+import {
+  buildColorSender,
+  Scanner,
+  client,
+  PingResponse,
+} from "../utils/colorPusher"
 import { AnimationModel } from "../models/animation"
 import { RGBW } from "engine/types"
 import { Op } from "sequelize"
 
 const engines: Map<string, ColorEngine> = new Map()
 
+type LampWithAnimations = ILamp & { animationGuids: string[] }
+
 export async function getDevices(
   request: FastifyRequest,
   reply: FastifyReply
-): ApiResponse<Array<ILamp & { animationGuids: string[] }>> {
+): ApiResponse<LampWithAnimations[]> {
   const lamps = await LampModel.findAll()
 
   return lamps.map((l) => ({
@@ -26,13 +33,23 @@ export async function getDevices(
 export async function scanForDevices(
   request: FastifyRequest,
   reply: FastifyReply
-): ApiResponse<any> {
-  let scanner = new Scanner("192.168.12", client)
+): ApiResponse<LampWithAnimations[]> {
+  let baseIp = "192.168.12"
+  let scanner = new Scanner(baseIp, client)
   console.log("Scaning...")
   try {
     let results = await scanner.scan()
-    console.log("Results", results)
-    return results
+
+    if (results.length > 0) {
+      await addNewDevices(baseIp, results)
+    }
+
+    const lamps = await LampModel.findAll()
+
+    return lamps.map((l) => ({
+      ...l.toJSON(),
+      animationGuids: engines.get(l.guid)?.getAnimationGuids() || [],
+    }))
   } catch (e) {
     console.log("Error occured", e)
   }
@@ -40,7 +57,24 @@ export async function scanForDevices(
   return createError(reply, "Not Implemented", StatusCodes.NOT_IMPLEMENTED)
 }
 
-const META_BYTES = 3
+async function addNewDevices(baseIp: string, devices: PingResponse[]) {
+  let currentLamps = await LampModel.findAll()
+  let currentLampMacAddresses = currentLamps.map((c) => c.macAddress)
+
+  let newLampMacAddress = devices.filter(
+    (d) => !currentLampMacAddresses.includes(d.macAddress)
+  )
+
+  newLampMacAddress.forEach(async (macObj) => {
+    let newLamp = {
+      currentIP: `${baseIp}.${macObj.ipOctlet}`,
+      name: `New Lamp ${macObj.ipOctlet}`,
+      macAddress: macObj.macAddress,
+      numOfLeds: macObj.numOfLeds,
+    }
+    await LampModel.create(newLamp)
+  })
+}
 
 export async function createDevice(
   request: FastifyRequest,
@@ -52,6 +86,27 @@ export async function createDevice(
   })
 
   return lamp
+}
+
+export async function updateDevice(
+  request: FastifyRequest,
+  reply: FastifyReply
+): ApiResponse<number> {
+  const { deviceGuid } = request.params as { deviceGuid: string }
+  const lampParts = request.body as Partial<ILamp>
+
+  const [affectedCount] = await LampModel.update(
+    {
+      ...lampParts,
+    },
+    {
+      where: {
+        guid: deviceGuid,
+      },
+    }
+  )
+
+  return affectedCount
 }
 
 export async function deleteDevice(
@@ -72,6 +127,23 @@ export async function deleteDevice(
   return deletedCount
 }
 
+export async function getDevice(
+  request: FastifyRequest,
+  reply: FastifyReply
+): ApiResponse<ILamp> {
+  const { deviceGuid } = request.params as { deviceGuid: string }
+  const lamp = await LampModel.findOne({ where: { guid: deviceGuid } })
+
+  if (!lamp) {
+    return createError(
+      reply,
+      `Couldn't find lamp with guid: ${deviceGuid}`,
+      StatusCodes.NOT_FOUND
+    )
+  }
+
+  return lamp
+}
 /**
  * Bulk set an animations for a list of devices.
  *

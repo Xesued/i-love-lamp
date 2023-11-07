@@ -4,11 +4,12 @@ import { AnimationItem, RGBW } from "engine/types"
 // TODO: Build a common "API" schema shared between
 // the server an app
 
-export interface ILamp {
+export interface IDevice {
   guid: string
   name: string
   currentIP: string
   numOfLeds: number
+  macAddress: string
   animationGuids: string[]
 }
 
@@ -29,12 +30,15 @@ export const lampApi = createApi({
   }),
   tagTypes: ["devices", "animations"],
   endpoints: (builder) => ({
-    getDevices: builder.query<ILamp[], void>({
+    getDevices: builder.query<IDevice[], void>({
       providesTags: ["devices"],
       query: () => "devices",
     }),
 
-    addDevice: builder.mutation<ILamp, Omit<ILamp, "guid" | "animationGuids">>({
+    addDevice: builder.mutation<
+      IDevice,
+      Omit<IDevice, "guid" | "animationGuids">
+    >({
       invalidatesTags: ["devices"],
       query: (lampData) => ({
         url: `devices`,
@@ -43,7 +47,32 @@ export const lampApi = createApi({
       }),
     }),
 
+    getDevice: builder.query<IDevice, string>({
+      query: (deviceGuid) => `devices/${deviceGuid}`,
+    }),
+
+    updateDevice: builder.mutation<
+      IDevice,
+      Partial<Omit<IDevice, "animationGuids">>
+    >({
+      invalidatesTags: ["devices"],
+      query: (lampData) => ({
+        url: `devices/${lampData.guid}`,
+        method: "PUT",
+        body: lampData,
+      }),
+    }),
+
+    scanForDevices: builder.mutation<IDevice[], void>({
+      invalidatesTags: ["devices"],
+      query: () => ({
+        url: "devices/scan",
+        method: "POST",
+      }),
+    }),
+
     removeDevice: builder.mutation<string, string>({
+      invalidatesTags: ["devices"],
       query: (lampGuid) => ({
         url: `devices/${lampGuid}`,
         method: "DELETE",
@@ -112,6 +141,8 @@ export const lampApi = createApi({
 
 export const {
   useGetDevicesQuery,
+  useGetDeviceQuery,
+  useUpdateDeviceMutation,
   useAddDeviceMutation,
   useRemoveDeviceMutation,
   useGetAnimationsQuery,
@@ -120,4 +151,5 @@ export const {
   useSetSolidColorMutation,
   useAddAnimationMutation,
   useBulkSetAnimationsMutation,
+  useScanForDevicesMutation,
 } = lampApi

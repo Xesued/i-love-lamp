@@ -82,7 +82,6 @@ ip_bits = bin(int(ip.split('.')[-1]))
 ip_leds = [to_color(i) for i in ip_bits]
 
 commander = Commander(LED_COUNT, GPIO_PIN, list(mac))
-color_ip(commander)
 
 # deref for performance
 ticks_us = utime.ticks_us

@@ -23,7 +23,7 @@ export function pushColors(leds: RGBW[], ip: string) {
   })
 }
 
-interface PingResponse {
+export interface PingResponse {
   ipOctlet: number
   numOfLeds: number
   macAddress: string
@@ -50,16 +50,18 @@ export class Scanner {
   constructor(baseOctlets: string, udpClient: udp.Socket) {
     this._baseIp = baseOctlets
     this._udpClient = udpClient
-    this._udpClient.addListener("message", this.handleMessage.bind(this))
   }
 
   async scan(): Promise<PingResponse[]> {
+    const handler = this.handleMessage.bind(this)
+    this._udpClient.addListener("message", handler)
     const ipRange = Array.from(Array(255).keys())
     const promises = ipRange.map((ipOctlet) => {
       return this.ping(ipOctlet)
     })
 
     let results = await Promise.allSettled(promises)
+    this._udpClient.removeListener("message", handler)
     return results.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []))
   }
 
@@ -88,10 +90,19 @@ export class Scanner {
     })
   }
 
+  // This can be running when we send LED commands, we need to
+  // filter them out.
   private handleMessage(msg: Buffer) {
+    // TODO: Should we have devices echo back data?
+    if (msg.length === 3) {
+      // LED commands don't return meta data.
+      return
+    }
+
     console.log("====================")
     console.log("NEW DEVICE FOUND")
     console.log("====================")
+    console.log(msg)
 
     if (msg.length < 2) {
       console.log("Error, expected larger message", msg)
@@ -99,7 +110,7 @@ export class Scanner {
     }
 
     let ipOctlet = msg.readUInt16BE(0)
-    let numOfLeds = msg.readUint16BE(2)
+    let numOfLeds = msg.readUInt16BE(2)
 
     let macAddress = Array.from(msg)
       .slice(4)

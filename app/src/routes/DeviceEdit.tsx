@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
 import { Button, Input, Typography } from "@material-tailwind/react"
-import { useNavigate } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 
-import { useAddDeviceMutation } from "../api/lampApi"
+import { useGetDeviceQuery, useUpdateDeviceMutation } from "../api/lampApi"
 
 type FormErrors = {
   ip?: string
@@ -10,69 +10,72 @@ type FormErrors = {
   numOfLeds?: string
 }
 
-export default function AddLamp() {
+export default function EditDevice() {
   const navigate = useNavigate()
-  const [addDevice, addResult] = useAddDeviceMutation()
-  const [newIp, setNewIp] = useState<string | null>("")
+  const { deviceGuid } = useParams()
+
+  console.log("DEVICE GUID", deviceGuid)
+  const { data: device, isLoading } = useGetDeviceQuery(
+    // TODO: how to better type and handle this.
+    deviceGuid || "",
+  )
+  const [updateDevice, updateResult] = useUpdateDeviceMutation()
+
   const [newName, setNewName] = useState("")
-  const [newMacAddress, setNewMacAddress] = useState("")
   const [newNumOfLeds, setNewNumOfLeds] = useState("")
   const [formErrors, setFormErrors] = useState<FormErrors>({})
 
-  const handleNewIpChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setNewIp(e.currentTarget.value)
-  }
+  useEffect(() => {
+    if (device) {
+      setNewName(device.name)
+      setNewNumOfLeds(device.numOfLeds + "")
+    }
+  }, [device])
 
   const handleNewNameChange = (e: React.FormEvent<HTMLInputElement>) => {
     setNewName(e.currentTarget.value)
   }
 
-  const handleNewMacAddressChange= (e: React.FormEvent<HTMLInputElement>) => {
-    setNewMacAddress(e.currentTarget.value)
-  }
-
   const handleNewNumOfLeds = (e: React.FormEvent<HTMLInputElement>) => {
     const value = e.currentTarget.value
-    if(isNaN(parseInt(value))) {
+    if (isNaN(parseInt(value))) {
       return
     }
     setNewNumOfLeds(e.currentTarget.value)
   }
+
   const handleCreateNewLamp = () => {
     const errors: FormErrors = {}
-    if (newIp === null) {
-      errors.ip = "Ip address required"
-    } else {
-      const ip = parseInt(newIp, 10)
-      if (isNaN(ip) || ip > 255 || ip < 0) {
-        errors.ip = "Ip address must be a number between 0 and 255"
-      }
-    }
-
     if (newName === "") {
       errors.name = "Name is required"
     }
+
+    const numOfLeds = parseInt(newNumOfLeds, 10)
+    if (isNaN(numOfLeds) || numOfLeds < 1) {
+      errors.numOfLeds =
+        "Number of leds needs to be a number greater than zero."
+    }
+
     setFormErrors(errors)
 
-    if (newIp === null || errors.ip || errors.name) {
-      return
-    }
-
-    const lamp = {
+    const lampParts = {
+      guid: deviceGuid,
       name: newName,
-      currentIP: newIp,
       numOfLeds: parseInt(newNumOfLeds, 10),
-      macAddress: newMacAddress,
     }
 
-    addDevice(lamp)
+    updateDevice(lampParts)
   }
 
-  useEffect(() =>{
-    if( addResult.status === 'fulfilled' && addResult.isSuccess) {
-      navigate("/lamps")
+  useEffect(() => {
+    if (updateResult.status === "fulfilled" && updateResult.isSuccess) {
+      navigate("/devices")
     }
-  }, [addResult])
+  }, [updateResult])
+
+  if (!device) {
+    return <div>Loading....</div>
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -81,10 +84,9 @@ export default function AddLamp() {
         <div>
           {/* Type bug?  Requireing me to add crossOrigin undefined... */}
           <Input
-            error={!!formErrors.ip}
             label="Ip Address"
-            value={newIp || ""}
-            onChange={handleNewIpChange}
+            value={device.currentIP || ""}
+            disabled
             crossOrigin={undefined}
           />
           {!!formErrors.ip && (
@@ -98,8 +100,8 @@ export default function AddLamp() {
           <Input
             error={!!formErrors.ip}
             label="Mac Address"
-            value={newMacAddress || ""}
-            onChange={handleNewMacAddressChange}
+            value={device.macAddress}
+            disabled
             crossOrigin={undefined}
           />
           {!!formErrors.ip && (
@@ -140,7 +142,7 @@ export default function AddLamp() {
         </div>
       </div>
       <Button color="blue" onClick={() => handleCreateNewLamp()}>
-        Add New Lamp
+        Update Device
       </Button>
     </div>
   )

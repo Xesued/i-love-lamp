@@ -1,10 +1,10 @@
-import React from "react"
 import {
+  Collapse,
+  IconButton,
   Navbar,
   Typography,
-  IconButton,
-  Collapse,
 } from "@material-tailwind/react"
+import React from "react"
 import { Link } from "react-router-dom"
 
 function SimpleLink(props: { to: string; linkName: string }) {
@@ -37,7 +37,7 @@ export function StickyNavbar() {
     <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       <SimpleLink to="/" linkName="Home" />
       <SimpleLink to="/animations" linkName="Animations" />
-      <SimpleLink to="/lamps" linkName="Lamps" />
+      <SimpleLink to="/devices" linkName="Devices" />
       <SimpleLink to="/test" linkName="Test" />
     </ul>
   )

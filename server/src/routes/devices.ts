@@ -14,6 +14,9 @@ export const deviceRoutes: FastifyPluginCallback = (fastify, ops, done) => {
     "/:deviceGuid/toggleAnimation/:animationGuid",
     deviceController.toggleAnimation
   )
+
+  fastify.get("/:deviceGuid", deviceController.getDevice)
+  fastify.put("/:deviceGuid", deviceController.updateDevice)
   fastify.delete("/:deviceGuid", deviceController.deleteDevice)
   done()
 }
