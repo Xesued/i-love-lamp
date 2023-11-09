@@ -4,10 +4,16 @@ FROM node:20-alpine as build
 # files differently.
 ENV DOCKER_BUILD=true
 
+WORKDIR /engine
+COPY engine/. .
+
 WORKDIR /app
 COPY app/package.json ./
+
 RUN npm i
-COPY app/. ./
+
+COPY app/. .
+
 RUN npm run build
 
 FROM nginx
