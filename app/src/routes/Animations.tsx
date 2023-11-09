@@ -1,19 +1,20 @@
 import {
   Button,
-  Typography,
   List,
   ListItem,
   ListItemSuffix,
+  Typography,
 } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
-import { useGetAnimationsQuery, useRemoveAnimationMutation } from "../api/lampApi"
+import {
+  useGetAnimationsQuery,
+  useRemoveAnimationMutation,
+} from "../api/lampApi"
 
 export default function Config() {
   const navigate = useNavigate()
-  const [ removeAnimation, removeResults ] = useRemoveAnimationMutation()
-  const {
-    data: animations,
-  } = useGetAnimationsQuery()
+  const [removeAnimation] = useRemoveAnimationMutation()
+  const { data: animations } = useGetAnimationsQuery()
 
   const handleAddNew = () => {
     navigate("/animations/new")
@@ -29,7 +30,7 @@ export default function Config() {
 
   if (!animations) {
     return <div> Loading....</div>
-  } 
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -38,7 +39,9 @@ export default function Config() {
         {animations.map((animation) => (
           <ListItem key={animation.name} className="py-1 pr-1 pl-4">
             <div className="flex flex-col">
-              <Typography variant="small">Type: {animation.details.animationType}</Typography>
+              <Typography variant="small">
+                Type: {animation.details.animationType}
+              </Typography>
               <Typography>{animation.name} </Typography>
             </div>
             <ListItemSuffix className="flex gap-2 ">

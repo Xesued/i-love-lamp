@@ -48,7 +48,7 @@ export class ColorEngine {
 
   setSolidColor(color: RGBW) {
     this.stop()
-    this._colorCollector(this._blankLeds.map((b) => color))
+    this._colorCollector(this._blankLeds.map(() => color))
   }
 
   addAnimationFunc(id: string, animationFunc: ColorGeneratorFunc) {

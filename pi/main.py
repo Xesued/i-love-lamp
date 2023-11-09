@@ -95,6 +95,9 @@ sendto = s.sendto
 # 2. Leds - Light up the LEDs
 
 
+# TODO:  Figure out bluetooth as well for configuring the device
+# with wifi settings.
+
 while True:
     try: 
         data, addr = recv(LED_COUNT * LED_SIZE + 3)

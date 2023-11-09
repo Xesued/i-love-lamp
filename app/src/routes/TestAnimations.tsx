@@ -2,9 +2,8 @@ import { Input } from "@material-tailwind/react"
 import { useEffect, useState } from "react"
 
 import { ColorEngine } from "engine"
-import { blink } from "engine/animations/blink"
 import * as colors from "engine/colors"
-import { RGBW } from "engine/types"
+import { AnimationType, RGBW } from "engine/types"
 
 import { ledToRGB } from "../utils/colorUtils"
 
@@ -18,47 +17,44 @@ export default function Animation() {
     setLeds(newLeds)
 
     const engine = new ColorEngine(numOfPixels)
-    engine.addAnimation(
-      "123213",
-      blink({
-        leds: Array.from(Array(numOfPixels).keys()),
-        offDurationMs: 1000,
-        offColor: [0, 0, 0, 0],
-        onColor: [255, 0, 0, 0],
-        onDurationMs: 1000,
-        transitionMs: 200,
-      }),
-    )
+    engine.addAnimation("123213", {
+      animationType: AnimationType.BLINK,
+      offDuration: 1000,
+      offColor: [0, 0, 0, 0],
+      onColor: [255, 0, 0, 0],
+      onDuration: 1000,
+      transition: 200,
+    })
 
-    let upDown = 1
-    let solidLed = 0
-    let solidLeds: number[] = []
-    const intv = setInterval(() => {
-      if (upDown === 1) {
-        if (solidLed + 1 > numOfPixels) {
-          // At the top... go back down
-          upDown = 0
-          solidLed--
-        } else {
-          solidLed++
-        }
-      } else {
-        if (solidLed - 1 < 0) {
-          // At the bottom... go back up
-          upDown = 1
-          solidLed++
-        } else {
-          solidLed--
-        }
-      }
-      solidLeds = Array.from(Array(solidLed).keys())
-    }, 100)
+    // let upDown = 1
+    // let solidLed = 0
+    // let solidLeds: number[] = []
+    // const intv = setInterval(() => {
+    //   if (upDown === 1) {
+    //     if (solidLed + 1 > numOfPixels) {
+    //       // At the top... go back down
+    //       upDown = 0
+    //       solidLed--
+    //     } else {
+    //       solidLed++
+    //     }
+    //   } else {
+    //     if (solidLed - 1 < 0) {
+    //       // At the bottom... go back up
+    //       upDown = 1
+    //       solidLed++
+    //     } else {
+    //       solidLed--
+    //     }
+    //   }
+    //   solidLeds = Array.from(Array(solidLed).keys())
+    // }, 100)
 
-    engine.run(setLeds)
+    engine.run()
 
     return () => {
       engine.stop()
-      clearInterval(intv)
+      // clearInterval(intv)
     }
   }, [numOfPixels])
 

@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useState } from "react"
-import type { ChangeEvent } from "react"
-import { AnimationType, BlinkAnimation } from "engine/types"
-import { rgbToRgbw, rgbwToRgb } from "engine/utils"
 import { Button, Input } from "@material-tailwind/react"
 import convert from "color-convert"
-import { ColorPickerInput } from "../ColorPickerInput"
+import { AnimationType, BlinkAnimation } from "engine/types"
+import { rgbToRgbw, rgbwToRgb } from "engine/utils"
+import type { ChangeEvent } from "react"
+import { useEffect, useState } from "react"
 import { IAnimationNew } from "../../api/lampApi"
+import { ColorPickerInput } from "../ColorPickerInput"
 
 type BlinkFormProps = {
   name?: string

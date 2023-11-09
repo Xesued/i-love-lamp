@@ -15,7 +15,7 @@ export default function EditDevice() {
   const { deviceGuid } = useParams()
 
   console.log("DEVICE GUID", deviceGuid)
-  const { data: device, isLoading } = useGetDeviceQuery(
+  const { data: device } = useGetDeviceQuery(
     // TODO: how to better type and handle this.
     deviceGuid || "",
   )
@@ -56,15 +56,18 @@ export default function EditDevice() {
         "Number of leds needs to be a number greater than zero."
     }
 
+    const hasErrors = Object.keys(errors).length > 0
     setFormErrors(errors)
 
-    const lampParts = {
-      guid: deviceGuid,
-      name: newName,
-      numOfLeds: parseInt(newNumOfLeds, 10),
-    }
+    if (!hasErrors) {
+      const lampParts = {
+        guid: deviceGuid,
+        name: newName,
+        numOfLeds: parseInt(newNumOfLeds, 10),
+      }
 
-    updateDevice(lampParts)
+      updateDevice(lampParts)
+    }
   }
 
   useEffect(() => {
