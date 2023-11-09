@@ -1,6 +1,5 @@
 {
   "python.linting.enabled": true,
   "python.languageServer": "Pylance",
-  "python.analysis.typeCheckingMode": "basic",
-  "react-native-tools.projectRoot": "./mobile"
+  "python.analysis.typeCheckingMode": "basic"
 }
