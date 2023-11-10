@@ -1,5 +1,50 @@
 #!/bin/bash
 
+# Read the secrets from the YAML file using 'yq' and assign them to variables
+username=$(yq -e '.database.name' secrets.yaml)
+password=$(yq -e '.database.password' secrets.yaml)
+appapiurl=$(yq -e '.app.apiurl' secrets.yaml)
+
+# Export the variables as environment variables
+export MYSQL_USER=$username
+export MYSQL_PASSWORD=$password
+
+# Environment variables when building the frontend.
+export VITE_API_URL=$appapiurl
+
+check_and_install_yq() {
+    if ! command -v yq &> /dev/null; then
+        echo "'yq' could not be found. Attempting to install..."
+
+        # Detect the platform (similar to $OSTYPE)
+        OS="`uname`"
+        case $OS in
+          'Linux')
+            sudo apt-get update -y && sudo apt-get install -y yq
+            ;;
+          'Darwin') 
+            brew install yq
+            ;;
+          *) 
+            echo "Unsupported OS. Please install 'yq' manually."
+            return 1
+            ;;
+        esac
+
+        # Check if 'yq' is successfully installed
+        if command -v yq &> /dev/null; then
+            echo "'yq' successfully installed."
+            return 0
+        else
+            echo "Installation failed. Please install 'yq' manually."
+            return 1
+        fi
+    else
+        echo "'yq' is already installed."
+        return 0
+    fi
+}
+
 install_nginx_if_not_installed() {
     # Check if Nginx is installed by checking the exit status of dpkg-query
     if ! dpkg -l | grep -qw nginx; then
@@ -62,56 +107,6 @@ install_node_version_20() {
     else
         echo "Node version 20 is already installed."
     fi
-}
-
-install_and_configure_mariadb() {
-    # Check if MariaDB is installed
-    if ! command -v mysql &> /dev/null; then
-        echo "MariaDB is not installed. Installing MariaDB."
-        sudo apt-get update
-        sudo apt-get install -y mariadb-server
-    else
-        echo "MariaDB is already installed."
-    fi
-
-    # Start MariaDB service and enable it to start on boot
-    sudo systemctl start mariadb
-    sudo systemctl enable mariadb
-
-     # Read credentials from secrets.yaml
-    local DB_NAME=$(grep 'name:' secrets.yaml | awk '{print $2}')
-    local DB_USER=$(grep 'user:' secrets.yaml | awk '{print $2}')
-    local DB_PASS=$(grep 'password:' secrets.yaml | awk '{print $2}')
-
-    if [ -z "$DB_NAME" ] || [ -z "$DB_USER" ] || [ -z "$DB_PASS" ]; then
-        echo "Failed to read database credentials from secrets.yaml"
-        return 1
-    fi
-
-    # SQL commands to check if the user already exists
-    local CHECK_USER_EXISTS="SELECT 1 FROM mysql.user WHERE user = '$DB_USER'"
-
-    # SQL commands to configure the database and user
-    local SQL=$(cat <<EOF
-CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;
-GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USER'@'localhost';
-FLUSH PRIVILEGES;
-EOF
-)
-
-    # Check if the user already exists
-    if echo "SHOW GRANTS FOR '$DB_USER'@'localhost';" | sudo mysql 2>/dev/null | grep -q "$DB_USER"; then
-        echo "User $DB_USER already exists. No need to create a new one."
-    else
-        echo "Creating user $DB_USER and granting privileges..."
-        # Create user and grant privileges if user does not exist
-        local CREATE_USER_SQL="CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASS';"
-        sudo mysql -e "$CREATE_USER_SQL"
-        sudo mysql -e "$SQL"
-    fi
-
-
-    echo "MariaDB has been configured successfully."
 }
 
 
@@ -298,9 +293,10 @@ EOF
 
 # Make sure everything is installed
 setup_env() {
+  check_and_install_yq
   install_node_version_20
   install_nginx_if_not_installed
-  install_and_configure_mariadb
+  # TODO: Need to better handle Maria setup.
 }
 
 # Build and setup the SPA Application
@@ -319,6 +315,8 @@ if [ "$1" = "app" ]; then
     setup_app
 elif [ "$1" = "server" ]; then
     setup_server
+elif [ "$1" = "env" ]; then
+    setup_env
 else 
   setup_env
   setup_server
