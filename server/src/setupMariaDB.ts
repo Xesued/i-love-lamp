@@ -8,6 +8,13 @@
 
 import { Sequelize } from "sequelize"
 
+console.error("=================")
+console.error("DB Stuff")
+console.error(process.env.LAMP_DB_HOST)
+console.error(process.env.LAMP_DB_USER)
+console.error(process.env.LAMP_DB_PASS)
+console.error(process.env.LAMP_DB_DBNAME)
+
 export const sequelize = new Sequelize({
   host: process.env.LAMP_DB_HOST || "",
   username: process.env.LAMP_DB_USER || "",
@@ -21,6 +28,13 @@ export async function setupDb() {
     await sequelize.authenticate()
     console.log("Connected to DB")
   } catch (error) {
+console.error("=================")
+console.error("DB Stuff")
+console.error(process.env.LAMP_DB_HOST)
+console.error(process.env.LAMP_DB_USER)
+console.error(process.env.LAMP_DB_PASS)
+console.error(process.env.LAMP_DB_DBNAME)
+
     console.error("Couldn't connect to db", error)
   }
 }

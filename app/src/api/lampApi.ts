@@ -23,6 +23,8 @@ export type IAnimationNew = Omit<IAnimation, "guid">
 
 const BASE_URL = import.meta.env.VITE_API_URL
 
+console.log(`___BASEURL___:"${BASE_URL}"`)
+
 export const lampApi = createApi({
   reducerPath: "lampApi",
   baseQuery: fetchBaseQuery({

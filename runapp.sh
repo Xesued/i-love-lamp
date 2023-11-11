@@ -1,35 +1,44 @@
 #!/bin/bash
 
 # Read the secrets from the YAML file using 'yq' and assign them to variables
-username=$(yq -e '.database.name' secrets.yaml)
-password=$(yq -e '.database.password' secrets.yaml)
-appapiurl=$(yq -e '.app.apiurl' secrets.yaml)
 
-# Export the variables as environment variables
-export MYSQL_USER=$username
-export MYSQL_PASSWORD=$password
+setup_env_variables() {
+    appapiurl=$(yq -e '.app.apiurl' secrets.yaml)
 
-# Environment variables when building the frontend.
-export VITE_API_URL=$appapiurl
+    # Export the variables as environment variables
+    export MYSQL_USER=$username
+    export MYSQL_PASSWORD=$password
+
+    # Environment variables when building the frontend.
+    export VITE_API_URL=$appapiurl
+
+    # Enviroment variables the server uses to connect to the database.
+    username=$(yq -e '.database.user' secrets.yaml)
+    password=$(yq -e '.database.password' secrets.yaml)
+    host=$(yq -e '.database.host' secrets.yaml)
+    dbname=$(yq -e '.database.dbname' secrets.yaml)
+    export LAMP_DB_USER=$username
+    export LAMP_DB_PASS=$password
+    export LAMP_DB_HOST=$host
+    export LAMP_DB_DBNAME=$dbname
+
+    echo "apiurl: '$VITE_API_URL'"
+    echo "lamp user: '$LAMP_DB_USER'"
+    echo "lamp pass: '$LAMP_DB_PASS'"
+    echo "lamp host: '$LAMP_DB_HOST'"
+    echo "lamp db: '$LAMP_DB_DBNAME'"
+}
 
 check_and_install_yq() {
     if ! command -v yq &> /dev/null; then
         echo "'yq' could not be found. Attempting to install..."
 
-        # Detect the platform (similar to $OSTYPE)
-        OS="`uname`"
-        case $OS in
-          'Linux')
-            sudo apt-get update -y && sudo apt-get install -y yq
-            ;;
-          'Darwin') 
-            brew install yq
-            ;;
-          *) 
-            echo "Unsupported OS. Please install 'yq' manually."
-            return 1
-            ;;
-        esac
+        VERSION="v4.35.2"
+        BINARY="yq_linux_arm64"
+
+        wget https://github.com/mikefarah/yq/releases/download/${VERSION}/${BINARY}.tar.gz -O - |\
+        tar xz
+        sudo mv ${BINARY} /usr/bin/yq
 
         # Check if 'yq' is successfully installed
         if command -v yq &> /dev/null; then
@@ -243,17 +252,17 @@ server_create_service() {
     local SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME"
 
     # Check if the service already exists
-    if systemctl --quiet is-active $SERVICE_NAME; then
-        echo "The service $SERVICE_NAME is already created and running."
-        return 0
-    elif systemctl --quiet is-enabled $SERVICE_NAME; then
-        echo "The service $SERVICE_NAME is already created but not running. Starting the service."
-        sudo systemctl start $SERVICE_NAME
-        return 0
-    elif [ -f $SERVICE_FILE ]; then
-        echo "The service file $SERVICE_FILE already exists. To re-create the service, delete the existing service file first."
-        return 1
-    fi
+    # if systemctl --quiet is-active $SERVICE_NAME; then
+    #     echo "The service $SERVICE_NAME is already created and running."
+    #     return 0
+    # elif systemctl --quiet is-enabled $SERVICE_NAME; then
+    #     echo "The service $SERVICE_NAME is already created but not running. Starting the service."
+    #     sudo systemctl start $SERVICE_NAME
+    #     return 0
+    # elif [ -f $SERVICE_FILE ]; then
+    #     echo "The service file $SERVICE_FILE already exists. To re-create the service, delete the existing service file first."
+    #     return 1
+    # fi
 
     # The user and group that should run the service. Change these to your desired user and group.
     local USER="ilovelamp"
@@ -272,7 +281,7 @@ User=$USER
 Group=$GROUP
 Restart=on-failure
 WorkingDirectory=$SERVER_DIR
-ExecStart=/usr/bin/npm run start
+ExecStart=npm run start
 
 [Install]
 WantedBy=multi-user.target
@@ -291,9 +300,12 @@ EOF
 }
 
 
+check_and_install_yq
+setup_env_variables
+
+
 # Make sure everything is installed
 setup_env() {
-  check_and_install_yq
   install_node_version_20
   install_nginx_if_not_installed
   # TODO: Need to better handle Maria setup.
