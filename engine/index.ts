@@ -33,12 +33,15 @@ export class ColorEngine {
   private _animations: Map<string, Generator<LedMap>> = new Map()
   private _interval: any = null
   private _delayMs: number = 32
-  private _blankLeds: RGBW[]
+
+  // The colors for each sector if set.  Vs. animation
+  private _solidColors: RGBW[] = []
+
   private _colorCollector: (leds: RGBW[]) => void
 
-  constructor(numOfLeds: number) {
+  constructor(numOfLeds: number, numberOfSectors: number = 1) {
     this._numOfLeds = numOfLeds
-    this._blankLeds = Array(this._numOfLeds).fill([0, 0, 0, 0])
+    this._solidColors = Array(this._numOfLeds).fill([0, 0, 0, 0])
     this._colorCollector = () => {}
   }
 
@@ -46,9 +49,34 @@ export class ColorEngine {
     this._colorCollector = collector
   }
 
-  setSolidColor(color: RGBW) {
+  /**
+   * Sets the color
+   * @param color The RGBW value to set the sector to
+   * @param sector What sector to set the color for. 0 based
+   */
+  setSolidColor(color: RGBW, sector?: number) {
     this.stop()
-    this._colorCollector(this._blankLeds.map(() => color))
+    this._solidColors = this._solidColors.map(() => color)
+    this._colorCollector(this._solidColors)
+  }
+
+  /**
+   * Sets the color of individual leds
+   *
+   * @param color The RGBW value to set the sector to
+   * @param sector What sector to set the color for.
+   */
+  setLedColor(leds: LedMap) {
+    this.stop()
+    Object.entries(leds).forEach(([ledIndex, ledColor]) => {
+      this._solidColors[parseInt(ledIndex)] = ledColor
+    })
+
+    this._colorCollector(this._solidColors)
+  }
+
+  getColors() {
+    return this._solidColors
   }
 
   addAnimationFunc(id: string, animationFunc: ColorGeneratorFunc) {
@@ -98,6 +126,10 @@ export class ColorEngine {
   ): string[] {
     if (this._animations.has(animationGuid)) {
       this._animations.delete(animationGuid)
+      if (this._animations.size === 0) {
+        this.setSolidColor([0, 0, 0, 0])
+        this.stop()
+      }
     } else {
       const colorFunc = ColorEngine.buildAnimation(
         animationDef,
@@ -167,7 +199,7 @@ export class ColorEngine {
       })
 
       // Make sure to fill any holes.
-      const finalRGBW = this._blankLeds.map((l, i) => {
+      const finalRGBW = this._solidColors.map((l, i) => {
         const rbgw = rgbwMap[i]
         if (rbgw) return rbgw
         return l

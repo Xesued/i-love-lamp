@@ -14,7 +14,6 @@ export default function EditDevice() {
   const navigate = useNavigate()
   const { deviceGuid } = useParams()
 
-  console.log("DEVICE GUID", deviceGuid)
   const { data: device } = useGetDeviceQuery(
     // TODO: how to better type and handle this.
     deviceGuid || "",

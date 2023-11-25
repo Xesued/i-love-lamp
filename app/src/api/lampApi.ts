@@ -11,6 +11,7 @@ export interface IDevice {
   numOfLeds: number
   macAddress: string
   animationGuids: string[]
+  colors: RGBW[]
 }
 
 export interface IAnimation {
@@ -22,8 +23,6 @@ export interface IAnimation {
 export type IAnimationNew = Omit<IAnimation, "guid">
 
 const BASE_URL = import.meta.env.VITE_API_URL
-
-console.log(`___BASEURL___:"${BASE_URL}"`)
 
 export const lampApi = createApi({
   reducerPath: "lampApi",
@@ -87,7 +86,7 @@ export const lampApi = createApi({
     }),
 
     setSolidColor: builder.mutation<string, { lampGuid: string; color: RGBW }>({
-      invalidatesTags: ["animations"],
+      invalidatesTags: ["devices"],
       query: ({ lampGuid, color }) => ({
         url: `devices/${lampGuid}/color`,
         method: "POST",

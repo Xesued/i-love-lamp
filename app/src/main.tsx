@@ -18,6 +18,7 @@ import { ThemeProvider } from "@material-tailwind/react"
 import ErrorPage from "./error-page"
 
 import "./index.css"
+import { DeviceAnimations } from "./routes/DeviceAnimations.tsx"
 
 const router = createBrowserRouter([
   {
@@ -63,11 +64,18 @@ const router = createBrowserRouter([
             element: <DeviceAdd />,
           },
           {
-            path: "edit/:deviceGuid",
+            path: ":deviceGuid/edit",
             loader: ({ params }) => {
               return params
             },
             element: <DeviceEdit />,
+          },
+          {
+            path: ":deviceGuid/animations",
+            loader: ({ params }) => {
+              return params
+            },
+            element: <DeviceAnimations />,
           },
         ],
       },

@@ -1,14 +1,17 @@
 import { WebSocketServer } from "ws"
-import type { WebSocket } from "ws"
+import { WebSocket } from "ws"
 import { pushColors } from "./utils/colorPusher"
 import { RGBW } from "engine/types"
 
+let wss: WebSocketServer
+
 export function setupWsServer(port: number) {
-  const wss = new WebSocketServer({ port })
+  wss = new WebSocketServer({ port })
   wss.on("connection", handleConnection)
 }
 
 function handleConnection(ws: WebSocket) {
+  console.log("New websocket connection...")
   ws.on("error", console.error)
   ws.on("message", handleMessage)
 }

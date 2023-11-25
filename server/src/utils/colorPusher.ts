@@ -1,13 +1,74 @@
 import udp from "dgram"
 import type { RGBW } from "engine/types"
-import { resolve } from "path"
 import { makeLedCommand, makePingCommand } from "./devicecommands"
+import { WebSocketServer, WebSocket } from "ws"
 
 export const client = udp.createSocket("udp4")
 
-export function buildColorSender(ip: string) {
-  return (leds: RGBW[]) => {
-    pushColors(leds, ip)
+type LEDReceiver = (leds: RGBW[]) => void
+
+/**
+ * Object that helps push colors to devices, and communicate changes
+ * to connected UIs on the websockets
+ *
+ */
+export class ColorCommunicator {
+  _wss: WebSocketServer
+  _colorSenders: Map<string, LEDReceiver> = new Map()
+
+  constructor() {
+    this._wss = new WebSocketServer({ port: 3002 })
+    this._wss.on("connection", this._handleWsConnection)
+    this._wss.on("error", this._handleWsError)
+  }
+
+  getColorSender(ip: string) {
+    let sender = this._colorSenders.get(ip)
+    if (sender) return sender
+
+    sender = this._buildColorSender(ip)
+    this._colorSenders.set(ip, sender)
+    return sender
+  }
+
+  _buildColorSender(ip: string) {
+    return (leds: RGBW[]) => {
+      pushColors(leds, ip)
+      this._colorEvent(leds, ip)
+    }
+  }
+
+  /**
+   * Called when we push new colors to devices.  When this happens,
+   * we want to let all of the connected devices know so they
+   * can update their previews
+   */
+  _colorEvent(leds: RGBW[], ip: string) {
+    let sender = this._colorSenders.get(ip)
+    if (!sender) return
+
+    this._wss.clients.forEach((c) => {
+      if (c.readyState === WebSocket.OPEN) {
+        let message = {
+          type: "LED_UPDATE",
+          ip: ip,
+          leds: leds,
+        }
+        c.send(JSON.stringify(message))
+      }
+    })
+  }
+
+  _handleWsConnection() {
+    console.log("====")
+    console.log("New client connected")
+    console.log("====")
+  }
+
+  _handleWsError(e: any) {
+    console.log("!!!!")
+    console.log("ERROR", e)
+    console.log("!!!!")
   }
 }
 

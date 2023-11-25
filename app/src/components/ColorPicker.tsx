@@ -1,69 +1,49 @@
-import { useEffect, useState } from "react"
-
-import { Slider, Typography } from "@material-tailwind/react"
 import { RGBW } from "engine/types"
-import { ColorResult, HuePicker } from "react-color"
+import { useState } from "react"
+
+import { RgbaColor, RgbaColorPicker } from "react-colorful"
 
 interface ColorPickerProps {
+  color: RGBW
   onChange: (color: RGBW) => void
 }
 
-const MAX_BRIGHTNESS = 255
-
 export function ColorPicker(props: ColorPickerProps) {
-  const { onChange } = props
-  const [brightness, setBrightness] = useState(50)
-  const [whiteBrightness, setWhiteBrightness] = useState(50)
-  const [color, setColor] = useState<RGBW>([
-    MAX_BRIGHTNESS,
-    MAX_BRIGHTNESS,
-    MAX_BRIGHTNESS,
-    0,
-  ])
+  const { color, onChange } = props
 
-  useEffect(() => {
-    const brightnessPercentage = brightness / 100
-    const colorToUse: RGBW =
-      brightness === 0
-        ? [0, 0, 0, 0]
-        : [
-            Math.floor(color[0] * brightnessPercentage),
-            Math.floor(color[1] * brightnessPercentage),
-            Math.floor(color[2] * brightnessPercentage),
-            0, // White handled below
-          ]
-    colorToUse[3] = Math.floor(MAX_BRIGHTNESS * (whiteBrightness / 100))
-    onChange(colorToUse)
-  }, [color, brightness, whiteBrightness])
+  const [newColor, setNewColor] = useState<RgbaColor | undefined>()
 
-  const handleRgbChange = (newColor: ColorResult) => {
-    const rgb = newColor.rgb
-    setColor([rgb.r, rgb.g, rgb.b, color[3]])
-  }
+  const handleChange = (colorResult: RgbaColor) => {
+    setNewColor(colorResult)
+    const { r, g, b, a } = colorResult
 
-  const handleRgbBrightness = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.currentTarget
-    const numValue = parseInt(value, 10)
-    setBrightness(numValue)
-  }
-
-  const handleWhiteUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = event.currentTarget
-    const numValue = parseInt(value, 10)
-    setWhiteBrightness(numValue)
+    // For our purpose, the Alpha is for our white light channel.
+    const whiteChannel = a * 255
+    onChange([r, g, b, whiteChannel])
   }
 
   return (
     <div>
-      <HuePicker
+      <RgbaColorPicker color={newColor} onChange={handleChange} />
+      {/* <HuePicker
         color={{ r: color[0], g: color[1], b: color[2] }}
         onChange={handleRgbChange}
       />
       <Typography>Brightness</Typography>
-      <Slider value={brightness} onChange={handleRgbBrightness} />
+      <Slider
+        value={brightness}
+        onChange={handleRgbBrightness}
+        max={100}
+        min={0}
+      />
 
       <Typography>White Brightness</Typography>
-      <Slider value={whiteBrightness} onChange={handleWhiteUpdate} />
+      <Slider
+        value={whiteBrightness}
+        onChange={handleWhiteUpdate}
+        max={255}
+        min={0}
+      /> */}
     </div>
   )
 }

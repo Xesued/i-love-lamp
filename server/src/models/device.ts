@@ -9,19 +9,20 @@ import {
 
 import { sequelize } from "../setupMariaDB"
 
-export class LampModel extends Model<
-  InferAttributes<LampModel>,
-  InferCreationAttributes<LampModel>
+export class DeviceModel extends Model<
+  InferAttributes<DeviceModel>,
+  InferCreationAttributes<DeviceModel>
 > {
   // "Declare" so no class properites are emitted
   declare guid: CreationOptional<string>
   declare name: string
+  declare description: string
   declare currentIP: string
   declare macAddress: string
   declare numOfLeds: number
 }
 
-LampModel.init(
+DeviceModel.init(
   {
     guid: {
       type: DataTypes.UUID,
@@ -30,6 +31,7 @@ LampModel.init(
       allowNull: false,
     },
     name: { type: DataTypes.TEXT, allowNull: false },
+    description: { type: DataTypes.TEXT },
     currentIP: { type: DataTypes.CHAR, allowNull: false },
     macAddress: { type: DataTypes.CHAR, allowNull: false },
     numOfLeds: { type: DataTypes.SMALLINT, allowNull: false },
@@ -40,4 +42,4 @@ LampModel.init(
   }
 )
 
-export type ILamp = Attributes<LampModel>
+export type IDevice = Attributes<DeviceModel>
