@@ -9,9 +9,14 @@ interface ColorPickerProps {
 }
 
 export function ColorPicker(props: ColorPickerProps) {
-  const { color, onChange } = props
+  const { onChange } = props
 
-  const [newColor, setNewColor] = useState<RgbaColor | undefined>()
+  const [newColor, setNewColor] = useState<RgbaColor>({
+    r: 0,
+    g: 0,
+    b: 0,
+    a: 0,
+  })
 
   const handleChange = (colorResult: RgbaColor) => {
     setNewColor(colorResult)
@@ -25,25 +30,6 @@ export function ColorPicker(props: ColorPickerProps) {
   return (
     <div>
       <RgbaColorPicker color={newColor} onChange={handleChange} />
-      {/* <HuePicker
-        color={{ r: color[0], g: color[1], b: color[2] }}
-        onChange={handleRgbChange}
-      />
-      <Typography>Brightness</Typography>
-      <Slider
-        value={brightness}
-        onChange={handleRgbBrightness}
-        max={100}
-        min={0}
-      />
-
-      <Typography>White Brightness</Typography>
-      <Slider
-        value={whiteBrightness}
-        onChange={handleWhiteUpdate}
-        max={255}
-        min={0}
-      /> */}
     </div>
   )
 }

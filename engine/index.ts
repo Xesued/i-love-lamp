@@ -104,6 +104,27 @@ export class ColorEngine {
   }
 
   /**
+   * Sets what animations to run on the device.  This will
+   * clear out any existing animations
+   *
+   * @param animations The animations to run on this device
+   */
+  setAnimations(animations: Map<string, AnimationItem>) {
+    // We don't want to reset animations already running. Find
+    // what ones we need to clear.
+    let currentAnimationGuids = Array.from(this._animations.keys())
+    let newAnimationGuids = Array.from(animations.keys())
+    currentAnimationGuids.forEach((c) => {
+      if (!newAnimationGuids.includes(c)) this._animations.delete(c)
+    })
+
+    this._animations.clear()
+    animations.forEach((animationDetails, guid) => {
+      this.addAnimation(guid, animationDetails)
+    })
+  }
+
+  /**
    * Gets the GUIDs for what animations have been
    * applied.
    *

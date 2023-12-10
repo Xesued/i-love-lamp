@@ -11,7 +11,7 @@ import {
   ColorCommunicator,
 } from "../utils/colorPusher"
 import { AnimationModel } from "../models/animation"
-import { RGBW } from "engine/types"
+import { AnimationItem, RGBW } from "engine/types"
 import { Op } from "sequelize"
 
 console.log("SETTING UP ROUTE:")
@@ -156,6 +156,7 @@ export async function getDevice(
 
   return lamp
 }
+
 /**
  * Bulk set an animations for a list of devices.
  *
@@ -167,10 +168,9 @@ export async function setAnimations(
   request: FastifyRequest,
   reply: FastifyReply
 ): ApiResponse<number> {
-  const { deviceGuids, animationGuid, isOn } = request.body as {
+  const { deviceGuids, animationGuids } = request.body as {
     deviceGuids: string[]
-    animationGuid: string
-    isOn: boolean
+    animationGuids: string[]
   }
 
   const lamps = await DeviceModel.findAll({
@@ -179,9 +179,24 @@ export async function setAnimations(
   if (!lamps)
     return createError(
       reply,
-      `Couldn't find lamps with id`,
+      `Couldn't find any devices with id`,
       StatusCodes.NOT_FOUND
     )
+
+  const animations = await AnimationModel.findAll({
+    where: { guid: { [Op.in]: animationGuids } },
+  })
+  if (!animations)
+    return createError(
+      reply,
+      `Couldn't find any animations with given ids`,
+      StatusCodes.NOT_FOUND
+    )
+
+  const animationsByGuid = new Map<string, AnimationItem>()
+  animations.forEach((anim) => {
+    animationsByGuid.set(anim.guid, anim.details)
+  })
 
   lamps.forEach(async (lamp) => {
     const engine = getOrSetEngine(engines, lamp)
@@ -192,22 +207,8 @@ export async function setAnimations(
       }
     }
 
-    // Remove without having to query animation if we are removing it.
-    if (!isOn) {
-      return engine.removeAnimation(animationGuid)
-    }
-
-    const animation = await AnimationModel.findOne({
-      where: { guid: animationGuid },
-    })
-    if (!animation)
-      return createError(
-        reply,
-        `Couldn't find animation with id: ${animationGuid}`,
-        StatusCodes.NOT_FOUND
-      )
-
-    engine.addAnimation(animation.guid, animation.details)
+    engine.setAnimations(animationsByGuid)
+    engine.run()
   })
 
   return lamps.length

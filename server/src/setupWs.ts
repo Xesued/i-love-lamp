@@ -11,7 +11,6 @@ export function setupWsServer(port: number) {
 }
 
 function handleConnection(ws: WebSocket) {
-  console.log("New websocket connection...")
   ws.on("error", console.error)
   ws.on("message", handleMessage)
 }

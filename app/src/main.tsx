@@ -11,7 +11,6 @@ import DeviceAdd from "./routes/DeviceAdd.tsx"
 import DeviceEdit from "./routes/DeviceEdit.tsx"
 import Devices from "./routes/Devices.tsx"
 import Root from "./routes/Root.tsx"
-import TestAnimations from "./routes/TestAnimations"
 
 import { ThemeProvider } from "@material-tailwind/react"
 
@@ -78,11 +77,6 @@ const router = createBrowserRouter([
             element: <DeviceAnimations />,
           },
         ],
-      },
-      {
-        path: "test",
-        element: <TestAnimations />,
-        errorElement: <ErrorPage />,
       },
     ],
   },

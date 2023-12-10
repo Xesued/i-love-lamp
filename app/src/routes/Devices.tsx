@@ -3,7 +3,6 @@ import {
   List,
   ListItem,
   ListItemSuffix,
-  Typography,
 } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
 
@@ -12,11 +11,12 @@ import {
   useRemoveDeviceMutation,
   useScanForDevicesMutation,
 } from "../api/lampApi"
+import RouteHeader from "../components/RouteHeader"
 
-export default function LampList() {
+export default function DeviceList() {
   const navigate = useNavigate()
 
-  const { data: lamps } = useGetDevicesQuery()
+  const { data: devices } = useGetDevicesQuery()
   const [removeDevice] = useRemoveDeviceMutation()
   const [scanDevices, { isLoading: isScanning }] = useScanForDevicesMutation()
 
@@ -25,22 +25,26 @@ export default function LampList() {
   }
 
   const handleEditLamp = (guid: string) => {
-    navigate(`/devices/edit/${guid}`)
+    navigate(`/devices/${guid}/edit`)
+  }
+
+  const handleAddByHand = () => {
+    navigate(`/devices/new`)
   }
 
   const handleScan = () => {
     scanDevices()
   }
 
-  if (!lamps || isScanning) {
+  if (!devices || isScanning) {
     return <div>Loading...</div>
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <Typography variant="h2">Lamps</Typography>
+      <RouteHeader header="Devices" />
       <List>
-        {lamps.map((lamp) => (
+        {devices.map((lamp) => (
           <ListItem key={lamp.guid} className="py-1 pr-1 pl-4">
             {lamp.currentIP}: {lamp.name}{" "}
             <ListItemSuffix>
@@ -60,6 +64,7 @@ export default function LampList() {
       <Button color="blue" onClick={handleScan}>
         Scan For New Devices
       </Button>
+      <Button onClick={handleAddByHand}>Add By Hand</Button>
     </div>
   )
 }

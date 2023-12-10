@@ -7,8 +7,12 @@ import {
 import React from "react"
 import { Link } from "react-router-dom"
 
-function SimpleLink(props: { to: string; linkName: string }) {
-  const { to, linkName } = props
+function SimpleLink(props: {
+  onClick: () => void
+  to: string
+  linkName: string
+}) {
+  const { to, linkName, onClick } = props
   return (
     <Typography
       as="li"
@@ -16,7 +20,7 @@ function SimpleLink(props: { to: string; linkName: string }) {
       color="blue-gray"
       className="p-1 font-normal"
     >
-      <Link to={to} className="flex items-center">
+      <Link to={to} onClick={onClick} className="flex items-center">
         {linkName}
       </Link>
     </Typography>
@@ -33,12 +37,15 @@ export function StickyNavbar() {
     )
   }, [])
 
+  const toggleNav = () => {
+    setOpenNav((o) => !o)
+  }
+
   const navList = (
     <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
-      <SimpleLink to="/" linkName="Home" />
-      <SimpleLink to="/animations" linkName="Animations" />
-      <SimpleLink to="/devices" linkName="Devices" />
-      <SimpleLink to="/test" linkName="Test" />
+      <SimpleLink onClick={toggleNav} to="/" linkName="Home" />
+      <SimpleLink onClick={toggleNav} to="/animations" linkName="Animations" />
+      <SimpleLink onClick={toggleNav} to="/devices" linkName="Devices" />
     </ul>
   )
 

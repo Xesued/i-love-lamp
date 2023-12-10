@@ -105,16 +105,15 @@ export const lampApi = createApi({
 
     bulkSetAnimations: builder.mutation<
       string[],
-      { deviceGuids: string[]; animationGuid: string; isOn: boolean }
+      { deviceGuids: string[]; animationGuids: string[] }
     >({
       invalidatesTags: ["devices"],
-      query: ({ deviceGuids, animationGuid, isOn }) => ({
+      query: ({ deviceGuids, animationGuids }) => ({
         method: "POST",
         url: `devices/setBulkAnimations`,
         body: {
           deviceGuids,
-          animationGuid,
-          isOn,
+          animationGuids,
         },
       }),
     }),
