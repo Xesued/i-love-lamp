@@ -17,6 +17,7 @@ export enum AnimationType {
   BLINK = "BLINK",
   BOUNCE = "BOUNCE",
   SOLID = "SOLID",
+  RAINBOW = "RAINBOW",
 }
 
 export interface Animation {
@@ -45,4 +46,13 @@ export interface SolidAnimation extends Animation {
   color: RGBW
 }
 
-export type AnimationItem = BlinkAnimation | BounceAnimation | SolidAnimation
+export interface RainbowAnimation extends Animation {
+  animationType: AnimationType.RAINBOW
+  transitionMs: number
+}
+
+export type AnimationItem =
+  | BlinkAnimation
+  | BounceAnimation
+  | SolidAnimation
+  | RainbowAnimation

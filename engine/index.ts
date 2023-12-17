@@ -95,6 +95,7 @@ export class ColorEngine {
 
     const colorFunc = ColorEngine.buildAnimation(animationDef, this._numOfLeds)
     if (colorFunc) this.addAnimationFunc(animationGuid, colorFunc)
+
     return this.getAnimationGuids()
   }
 
@@ -163,13 +164,9 @@ export class ColorEngine {
   }
 
   static buildAnimation(animationDef: AnimationItem, numOfLeds: number) {
+    const leds = getLeds(animationDef.startLed, animationDef.endLed, numOfLeds)
     switch (animationDef.animationType) {
       case AnimationType.BLINK: {
-        const leds = getLeds(
-          animationDef.startLed,
-          animationDef.endLed,
-          numOfLeds
-        )
         return Animations.blink({
           leds,
           offDurationMs: animationDef.offDuration,
@@ -193,6 +190,13 @@ export class ColorEngine {
         return Animations.solid({
           leds: getLeds(0, numOfLeds - 1, numOfLeds),
           color: animationDef.color,
+        })
+      }
+
+      case AnimationType.RAINBOW: {
+        return Animations.rainbow({
+          leds,
+          transitionMs: animationDef.transitionMs,
         })
       }
 

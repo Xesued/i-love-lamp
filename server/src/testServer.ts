@@ -6,8 +6,9 @@ import udp from "dgram"
 import { ColorEngine } from "engine"
 import { blink } from "engine/animations/blink"
 import { solid } from "engine/animations/solid"
+import { rainbow } from "engine/animations/rainbow"
 import * as colors from "engine/colors"
-import type { RGBW } from "engine/types"
+import { AnimationType, type RGBW } from "engine/types"
 
 const LED_COUNT = 60
 const LED_PORT = 50222
@@ -28,17 +29,15 @@ client.addListener("message", (msg) => {
     console.log("Error, expected larger message", msg)
     return
   }
-  console.log("msg id", msg.readUInt16BE(0))
-  console.log("Num of leds", msg.readUInt16BE(2))
-
-  const macBytes = Array.from(msg)
-    .slice(4)
-    .map((byte) => {
-      return ("0" + (byte & 0xff).toString(16)).slice(-2)
-    })
-    .join(":")
-
-  console.log("mac addess", macBytes)
+  // console.log("msg id", msg.readUInt16BE(0))
+  // console.log("Num of leds", msg.readUInt16BE(2))
+  // const macBytes = Array.from(msg)
+  //   .slice(4)
+  //   .map((byte) => {
+  //     return ("0" + (byte & 0xff).toString(16)).slice(-2)
+  //   })
+  //   .join(":")
+  // console.log("mac addess", macBytes)
 })
 
 setInterval(() => {
@@ -68,16 +67,12 @@ for (let i = 0; i < LED_COUNT; i++) {
 //   sendColors(ledColors)
 // }, 24)
 
-// const engine = new ColorEngine(LED_COUNT)
-// engine.addAnimation(blink({
-//     leds: Array.from(Array(LED_COUNT).keys()), //.filter(i => i <= 30),
-//     offDurationMs: 100,
-//     offColor: [...colors.MAGENTA, 100],
-//     // onColor: [...colors.TEAL, 0],
-//     onColor:[255, 255,25,255],
-//     onDurationMs: 2000,
-//     transitionMs: 1000
-// }));
+const engine = new ColorEngine(LED_COUNT)
+engine.addAnimation("RAINBOW123", {
+  animationType: AnimationType.RAINBOW,
+  transitionMs: 100,
+})
+engine.setColorCollector(sendColors)
 
 // engine.addAnimation(
 //   blink({
@@ -126,9 +121,9 @@ for (let i = 0; i < LED_COUNT; i++) {
 //     color: [...colors.JADE, 0],
 // }))
 
-// async function run() {
-//   engine.run(sendColors)
-// }
+async function run() {
+  engine.run()
+}
 
 /**
  * Returns a message id
@@ -157,13 +152,12 @@ function sendColors(leds: RGBW[]) {
     buff.set([led[0], led[1], led[2], led[3]], i * 4 + META_BYTES)
   })
 
-  console.log("BUFF SIZE", buff.length)
   client.send(buff, LED_PORT, LED_IP, (error) => {
     if (error) client.close()
   })
 }
 
-// run()
+run()
 
 // function itvl(delay: number) {
 //   let upDown = 1

@@ -148,13 +148,13 @@ export function EditBlinkAnimation(props: BlinkFormProps) {
         crossOrigin={undefined}
       ></Input>
       <Input
-        label="Start Led"
+        label="Start Led (defaults to first)"
         value={opts?.startLed}
         onChange={setStringValueOfNumberField("startLed")}
         crossOrigin={undefined}
       ></Input>
       <Input
-        label="End Led"
+        label="End Led (defaults to last)"
         value={opts?.endLed}
         onChange={setStringValueOfNumberField("endLed")}
         crossOrigin={undefined}
