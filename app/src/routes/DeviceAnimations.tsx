@@ -101,7 +101,7 @@ export const DeviceAnimations = () => {
                 Setting a color will turn off all other animations
               </Typography>
               <ColorPicker
-                color={device.colors?.[0] || [255, 0, 0, 0]}
+                color={[255, 0, 0, 0]}
                 onChange={handleColorChange}
               />
             </div>

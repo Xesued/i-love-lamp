@@ -11,7 +11,7 @@ export interface IDevice {
   numOfLeds: number
   macAddress: string
   animationGuids: string[]
-  colors: RGBW[]
+  // colors: RGBW[]
 }
 
 export interface IAnimation {

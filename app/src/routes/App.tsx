@@ -1,6 +1,6 @@
 import { Alert, Typography } from "@material-tailwind/react"
 import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 import Tabs, {
   Tab,
@@ -8,11 +8,7 @@ import Tabs, {
   TabsBody,
   TabsHeader,
 } from "@material-tailwind/react/components/Tabs"
-import {
-  useGetAnimationsQuery,
-  useGetDevicesQuery,
-  useSetSolidColorMutation,
-} from "../api/lampApi"
+import { useGetAnimationsQuery, useGetDevicesQuery } from "../api/lampApi"
 import { AnimationToggler } from "../components/AnimationToggler"
 import { ColorPicker } from "../components/ColorPicker"
 import { DeviceCard } from "../components/DeviceCard"
@@ -20,11 +16,8 @@ import SectionHeader from "../components/SectionHeader"
 import { arrayRemove } from "../utils/arrayUtils"
 
 function App() {
-  const navigate = useNavigate()
   const { data: devices } = useGetDevicesQuery()
   const [selectedDevices, setSelectedDevices] = useState<string[]>([])
-  const [selectedAnimations, setSelectedAnimations] = useState<string[]>([])
-  const [setSolidColorMutation] = useSetSolidColorMutation()
   const { data: animations } = useGetAnimationsQuery()
 
   const handleSelectDevice = (deviceGuid: string | undefined) => {

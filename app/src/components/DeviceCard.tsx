@@ -1,8 +1,6 @@
 import { Card, CardBody } from "@material-tailwind/react"
 import Typography from "@material-tailwind/react/components/Typography"
 
-type ActionTypes = "showDetails" | "delete"
-
 interface DeviceCardProps {
   device: { guid: string; name: string }
   isSelected: boolean
