@@ -1,10 +1,4 @@
-import {
-  Button,
-  List,
-  ListItem,
-  ListItemSuffix,
-  Typography,
-} from "@material-tailwind/react"
+import { Button, List, ListItem, Typography } from "@material-tailwind/react"
 import { useNavigate } from "react-router-dom"
 import {
   useGetAnimationsQuery,
@@ -44,7 +38,7 @@ export default function Config() {
               </Typography>
               <Typography>{animation.name} </Typography>
             </div>
-            <ListItemSuffix className="flex gap-2 ">
+            {/* <ListItemSuffix className="flex gap-2 ">
               <Button
                 size="sm"
                 color="blue"
@@ -59,7 +53,7 @@ export default function Config() {
               >
                 Delete
               </Button>
-            </ListItemSuffix>
+            </ListItemSuffix> */}
           </ListItem>
         ))}
       </List>

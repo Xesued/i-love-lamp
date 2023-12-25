@@ -74,7 +74,7 @@ export const DeviceAnimations = () => {
     <div className="flex flex-col gap-2">
       <Typography variant="h3">{device.name}</Typography>
       <Tabs value="animations">
-        <TabsHeader>
+        <TabsHeader placeholder={""}>
           <Tab value={"animations"}>Animations</Tab>
           <Tab value={"solid"}>Color</Tab>
         </TabsHeader>

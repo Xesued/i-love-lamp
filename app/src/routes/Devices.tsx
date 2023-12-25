@@ -48,14 +48,14 @@ export default function DeviceList() {
           <ListItem key={lamp.guid} className="py-1 pr-1 pl-4">
             {lamp.currentIP}: {lamp.name}{" "}
             <ListItemSuffix>
-              <Button color="amber" onClick={() => handleEditLamp(lamp.guid)}>
+              {/* <Button color="amber" onClick={() => handleEditLamp(lamp.guid)}>
                 {" "}
                 Edit
               </Button>
               <Button color="amber" onClick={() => handleDeleteLamp(lamp.guid)}>
                 {" "}
                 Delete
-              </Button>
+              </Button> */}
             </ListItemSuffix>
           </ListItem>
         ))}
