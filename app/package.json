@@ -15,7 +15,7 @@
   "dependencies": {
     "@heroicons/react": "^2.0.18",
     "@material-tailwind/react": "^2.1.2",
-    "@reduxjs/toolkit": "^1.9.7",
+    "@reduxjs/toolkit": "^2.0.1",
     "@types/uuid": "^9.0.5",
     "framer-motion": "^10.16.4",
     "localforage": "^1.10.0",
@@ -30,20 +30,12 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^7.5.3",
-    "@storybook/addon-interactions": "^7.5.3",
-    "@storybook/addon-links": "^7.5.3",
-    "@storybook/addon-onboarding": "^1.0.8",
-    "@storybook/blocks": "^7.5.3",
-    "@storybook/react": "^7.5.3",
-    "@storybook/react-vite": "^7.5.3",
-    "@storybook/testing-library": "^0.2.2",
     "@types/color-convert": "^2.0.1",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
-    "@vitejs/plugin-react-swc": "^3.3.2",
+    "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.16",
     "eslint": "^8.45.0",
     "eslint-plugin-react-hooks": "^4.6.0",
@@ -52,11 +44,10 @@
     "postcss": "^8.4.30",
     "prettier": "3.0.3",
     "prettier-plugin-organize-imports": "^3.2.3",
-    "storybook": "^7.5.3",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
-    "vite": "^4.4.5",
-    "vite-plugin-mkcert": "^1.16.0",
-    "vitest": "^0.34.6"
+    "vite": "^5.0.10",
+    "vite-plugin-mkcert": "^1.17.1",
+    "vitest": "^1.1.0"
   }
 }

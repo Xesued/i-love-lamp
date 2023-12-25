@@ -1,5 +1,5 @@
 import { Alert, Typography } from "@material-tailwind/react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 import Tabs, {
@@ -8,17 +8,24 @@ import Tabs, {
   TabsBody,
   TabsHeader,
 } from "@material-tailwind/react/components/Tabs"
-import { useGetAnimationsQuery, useGetDevicesQuery } from "../api/lampApi"
+import { RGBW } from "engine/types"
+import {
+  useGetAnimationsQuery,
+  useGetDevicesQuery,
+  useSetSolidColorMutation,
+} from "../api/lampApi"
 import { AnimationToggler } from "../components/AnimationToggler"
 import { ColorPicker } from "../components/ColorPicker"
 import { DeviceCard } from "../components/DeviceCard"
 import SectionHeader from "../components/SectionHeader"
+import { useThrottle } from "../hooks/useThrottle"
 import { arrayRemove } from "../utils/arrayUtils"
 
 function App() {
   const { data: devices } = useGetDevicesQuery()
   const [selectedDevices, setSelectedDevices] = useState<string[]>([])
   const { data: animations } = useGetAnimationsQuery()
+  const [setSolidColorMutation] = useSetSolidColorMutation()
 
   const handleSelectDevice = (deviceGuid: string | undefined) => {
     if (!deviceGuid) return
@@ -30,7 +37,22 @@ function App() {
     }
   }
 
-  const handleColorChange = () => {}
+  const [solidColor, setSolidColor] = useState<RGBW | null>(null)
+  const throttledColor = useThrottle(solidColor, 100)
+  useEffect(() => {
+    if (throttledColor) {
+      selectedDevices.forEach((deviceGuid) => {
+        setSolidColorMutation({
+          lampGuid: deviceGuid,
+          color: throttledColor,
+        })
+      })
+    }
+  }, [throttledColor])
+
+  const handleColorChange = (color: RGBW) => {
+    setSolidColor(color)
+  }
 
   const hasDevices = !!devices && devices.length > 0
 

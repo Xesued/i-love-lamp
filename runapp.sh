@@ -1,6 +1,16 @@
 #!/bin/bash
 
-# Read the secrets from the YAML file using 'yq' and assign them to variables
+get_current_ip() {
+    # Get the primary network interface
+    local interface=$(ip route | grep '^default' | awk '{print $5}' | head -n 1)
+
+    # Get the IP address associated with the primary interface
+    local ip_address=$(ip -4 addr show "$interface" | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+
+    echo "$ip_address"
+}
+
+
 
 setup_env_variables() {
     appapiurl=$(yq -e '.app.apiurl' secrets.yaml)
@@ -10,7 +20,8 @@ setup_env_variables() {
     export MYSQL_PASSWORD=$password
 
     # Environment variables when building the frontend.
-    export VITE_API_URL=$appapiurl
+    local CURRENT_IP=$(get_current_ip)
+    export VITE_API_URL="http://${CURRENT_IP}:3000"
 
     # Enviroment variables the server uses to connect to the database.
     username=$(yq -e '.database.user' secrets.yaml)
@@ -28,6 +39,7 @@ setup_env_variables() {
     echo "lamp host: '$LAMP_DB_HOST'"
     echo "lamp db: '$LAMP_DB_DBNAME'"
 }
+
 
 check_and_install_yq() {
     if ! command -v yq &> /dev/null; then
