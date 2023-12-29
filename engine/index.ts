@@ -16,7 +16,7 @@ function getLeds(
   numOfLeds: number
 ) {
   const first = start ? start : 0
-  const last = Math.min(numOfLeds - 1, end ? end : numOfLeds - 1)
+  const last = Math.min(numOfLeds, end ? end : numOfLeds)
   const maxList = Array.from(Array(numOfLeds).keys())
   return maxList.slice(first, last)
 }
@@ -165,7 +165,7 @@ export class ColorEngine {
 
   static buildAnimation(animationDef: AnimationItem, numOfLeds: number) {
     const leds = getLeds(animationDef.startLed, animationDef.endLed, numOfLeds)
-    switch (animationDef.animationType) {
+    switch (animationDef.type) {
       case AnimationType.BLINK: {
         return Animations.blink({
           leds,

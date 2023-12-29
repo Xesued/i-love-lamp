@@ -34,7 +34,6 @@ export const DeviceAnimations = () => {
   const throttledColor = useThrottle(solidColor, 100)
   useEffect(() => {
     if (throttledColor && device) {
-      // TODO: Batch?
       setSolidColorMutation({
         lampGuid: device.guid,
         color: throttledColor,

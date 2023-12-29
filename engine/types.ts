@@ -21,13 +21,13 @@ export enum AnimationType {
 }
 
 export interface Animation {
-  animationType: AnimationType
+  type: AnimationType
   startLed?: number
   endLed?: number
 }
 
 export interface BlinkAnimation extends Animation {
-  animationType: AnimationType.BLINK
+  type: AnimationType.BLINK
   onColor: RGBW
   onDuration: number
   offColor: RGBW
@@ -36,18 +36,18 @@ export interface BlinkAnimation extends Animation {
 }
 
 export interface BounceAnimation extends Animation {
-  animationType: AnimationType.BOUNCE
+  type: AnimationType.BOUNCE
   color: RGBW
   speed: number
 }
 
 export interface SolidAnimation extends Animation {
-  animationType: AnimationType.SOLID
+  type: AnimationType.SOLID
   color: RGBW
 }
 
 export interface RainbowAnimation extends Animation {
-  animationType: AnimationType.RAINBOW
+  type: AnimationType.RAINBOW
   transitionMs: number
 }
 

@@ -69,7 +69,7 @@ for (let i = 0; i < LED_COUNT; i++) {
 
 const engine = new ColorEngine(LED_COUNT)
 engine.addAnimation("RAINBOW123", {
-  animationType: AnimationType.RAINBOW,
+  type: AnimationType.RAINBOW,
   transitionMs: 100,
 })
 engine.setColorCollector(sendColors)

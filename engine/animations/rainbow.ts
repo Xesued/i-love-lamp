@@ -61,7 +61,12 @@ export function rainbow(opts: RainbowOptions): ColorGeneratorFunc {
   const hueChangePerTick = 0.01
 
   // Sort, just incase.
-  const sortedLeds = [...leds].sort()
+  const sortedLeds = [...leds].sort((a, b) => {
+    if (a > b) return 1
+    else if (a < b) return -1
+    return 0
+  })
+  console.log("sorted leds: ", sortedLeds)
 
   let currentHueValue = 0
   let currentValues: LedMap = sortedLeds.reduce((acc, l) => {

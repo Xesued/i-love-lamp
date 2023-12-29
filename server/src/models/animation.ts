@@ -1,52 +1,57 @@
+import fs from "fs/promises"
+import { parse } from "yaml"
+
 import { AnimationItem, AnimationType, BlinkAnimation } from "engine/types"
 
-import {
-  Attributes,
-  CreationOptional,
-  DataTypes,
-  InferAttributes,
-  InferCreationAttributes,
-  Model,
-} from "sequelize"
-
-import { sequelize } from "../setupMariaDB"
-
-export class AnimationModel extends Model<
-  InferAttributes<AnimationModel>,
-  InferCreationAttributes<AnimationModel>
-> {
-  declare guid: CreationOptional<string>
-  declare name: string
-  declare details: AnimationItem
+export type IAnimation = {
+  guid: string
+  name: string
+  details: AnimationItem
 }
 
-AnimationModel.init(
-  {
-    guid: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
-      allowNull: false,
-    },
-    name: { type: DataTypes.TEXT, allowNull: false },
-    details: {
-      type: DataTypes.JSON,
-      allowNull: false,
-      validate: {
-        isValidAnimationDef,
-      },
-    },
-  },
-  {
-    tableName: "animations",
-    sequelize,
-  }
-)
+export async function getAnimations(): Promise<IAnimation[]> {
+  const file = await fs.readFile("data/animations.yml", "utf-8")
+  const animationDB = parse(file)
 
-export type IAnimation = Attributes<AnimationModel>
+  // TODO: parse and validate...
+  return animationDB.animations as IAnimation[]
+}
 
-function isValidAnimationDef(animationDef: AnimationItem) {
-  switch (animationDef.animationType) {
+export async function createAnimation(
+  parts: Partial<IAnimation>
+): Promise<IAnimation | null> {
+  return null
+}
+
+export async function updateAnimation(
+  guid: string,
+  parts: Partial<IAnimation>
+): Promise<IAnimation | null> {
+  console.log("TODO: update", guid, parts)
+  return null
+}
+
+export async function deleteAnimation(guid: string): Promise<boolean> {
+  console.log("TODO: delete", guid)
+  return false
+}
+
+export async function getAnimation(
+  guid: string
+): Promise<IAnimation | undefined> {
+  const animations = await getAnimations()
+  return animations.find((a) => a.guid === guid)
+}
+
+export async function getAnimationsByGuids(
+  guids: string[]
+): Promise<IAnimation[]> {
+  const animations = await getAnimations()
+  return animations.filter((a) => guids.includes(a.guid))
+}
+
+export function isValidAnimationDef(animationDef: AnimationItem) {
+  switch (animationDef.type) {
     case AnimationType.BLINK:
       if (!animationDef.onColor || !isRGBW(animationDef.onColor)) {
         throw new Error(

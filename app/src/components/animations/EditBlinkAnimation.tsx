@@ -95,7 +95,7 @@ export function EditBlinkAnimation(props: BlinkFormProps) {
 
   const handleAdd = () => {
     const newBlinkOpts: BlinkAnimation = {
-      animationType: AnimationType.BLINK,
+      type: AnimationType.BLINK,
       onColor: rgbToRgbw(convert.hex.rgb(opts.onColor)),
       offColor: rgbToRgbw(convert.hex.rgb(opts.offColor)),
       onDuration: parseInt(opts.onDuration),

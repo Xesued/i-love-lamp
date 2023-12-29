@@ -1,0 +1,17 @@
+animations:
+  - guid: rain-bow
+    name: Rainbow
+    details:
+      type: RAINBOW
+      startLed: ~
+      endLed: ~
+      transitionMs: 50
+
+  - guid: red-rider
+    name: Red Rider
+    details:
+      type: BOUNCE
+      startLed: ~
+      endLed: ~
+      color: [255, 0, 0, 0]
+      speed: 50

@@ -13,7 +13,7 @@ type AnimationCardProps = {
 export function AnimationCard(props: AnimationCardProps) {
   const { animation, ...rest } = props
 
-  switch (animation.details.animationType) {
+  switch (animation.details.type) {
     case AnimationType.BLINK: {
       return (
         <BlinkCard

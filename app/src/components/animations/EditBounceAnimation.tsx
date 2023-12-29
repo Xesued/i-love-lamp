@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react"
-import type { ChangeEvent } from "react"
-import { AnimationType, BounceAnimation } from "engine/types"
-import { rgbToRgbw, rgbwToRgb } from "engine/utils"
 import { Button, Input } from "@material-tailwind/react"
 import convert from "color-convert"
-import { ColorPickerInput } from "../ColorPickerInput"
+import { AnimationType, BounceAnimation } from "engine/types"
+import { rgbToRgbw, rgbwToRgb } from "engine/utils"
+import type { ChangeEvent } from "react"
+import { useEffect, useState } from "react"
 import { IAnimationNew } from "../../api/lampApi"
+import { ColorPickerInput } from "../ColorPickerInput"
 
 type BounceFormProps = {
   name?: string
@@ -96,7 +96,7 @@ export function EditBounceAnimation(props: BounceFormProps) {
 
   const handleAdd = () => {
     const bounceOpts: BounceAnimation = {
-      animationType: AnimationType.BOUNCE,
+      type: AnimationType.BOUNCE,
       color: rgbToRgbw(convert.hex.rgb(opts.color)),
       speed: parseInt(opts.speed),
       endLed: parseInt(opts.endLed),

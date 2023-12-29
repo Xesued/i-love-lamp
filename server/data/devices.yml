@@ -1,0 +1,19 @@
+devices:
+  - guid: 6ea1f96e-dc3b-4599-9b3e-14573fabbe3b
+    currentIP: 192.168.12.199
+    name: New Lamp 199
+    macAddress: 28:cd:c1:0f:82:90
+    numOfLeds: 20
+    description: ""
+  - guid: 14bcd4fc-ad00-47f0-ac3c-d89fcecd4c31
+    currentIP: 192.168.12.202
+    name: New Lamp 202
+    macAddress: 28:cd:c1:0f:7e:c1
+    numOfLeds: 60
+    description: ""
+  - guid: db79a99b-358a-48b7-b24d-4d015828124c
+    currentIP: 192.168.12.206
+    name: New Lamp 206
+    macAddress: 28:cd:c1:0f:93:da
+    numOfLeds: 60
+    description: ""

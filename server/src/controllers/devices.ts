@@ -1,8 +1,9 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify"
+import { FastifyReply, FastifyRequest } from "fastify"
 import { StatusCodes } from "http-status-codes"
-import { DeviceModel, IDevice } from "../models/device"
+import { IDevice } from "../models/device"
 import { createError } from "../utils/errors"
 import type { ApiResponse } from "../types"
+import { v4 as uuidv4 } from "uuid"
 import { ColorEngine } from "engine"
 import {
   Scanner,
@@ -10,12 +11,9 @@ import {
   PingResponse,
   ColorCommunicator,
 } from "../utils/colorPusher"
-import { AnimationModel } from "../models/animation"
+import * as Animation from "../models/animation"
+import * as Device from "../models/device"
 import { AnimationItem, RGBW } from "engine/types"
-import { Op } from "sequelize"
-
-console.log("SETTING UP ROUTE:")
-console.log("... DEVICES")
 
 const engines: Map<string, ColorEngine> = new Map()
 const colorCommunicator = new ColorCommunicator()
@@ -29,10 +27,9 @@ export async function getDevices(
   request: FastifyRequest,
   reply: FastifyReply
 ): ApiResponse<LampWithAnimations[]> {
-  const lamps = await DeviceModel.findAll()
-
+  const lamps = await Device.getDevices()
   return lamps.map((l) => ({
-    ...l.toJSON(),
+    ...l,
     animationGuids: engines.get(l.guid)?.getAnimationGuids() || [],
     colors: engines.get(l.guid)?.getColors(),
   }))
@@ -52,10 +49,10 @@ export async function scanForDevices(
       await addNewDevices(baseIp, results)
     }
 
-    const lamps = await DeviceModel.findAll()
+    const lamps = await Device.getDevices()
 
     return lamps.map((l) => ({
-      ...l.toJSON(),
+      ...l,
       animationGuids: engines.get(l.guid)?.getAnimationGuids() || [],
       colors: engines.get(l.guid)?.getColors(),
     }))
@@ -67,76 +64,60 @@ export async function scanForDevices(
 }
 
 async function addNewDevices(baseIp: string, devices: PingResponse[]) {
-  let currentLamps = await DeviceModel.findAll()
+  let currentLamps = await Device.getDevices()
   let currentLampMacAddresses = currentLamps.map((c) => c.macAddress)
 
   let newLampMacAddress = devices.filter(
     (d) => !currentLampMacAddresses.includes(d.macAddress)
   )
 
-  newLampMacAddress.forEach(async (macObj) => {
-    let newLamp = {
-      currentIP: `${baseIp}.${macObj.ipOctlet}`,
-      name: `New Lamp ${macObj.ipOctlet}`,
-      macAddress: macObj.macAddress,
-      numOfLeds: macObj.numOfLeds,
-      description: "",
-    }
-    await DeviceModel.create(newLamp)
-  })
+  const newDevices = newLampMacAddress.map((macObj) => ({
+    guid: uuidv4(),
+    currentIP: `${baseIp}.${macObj.ipOctlet}`,
+    name: `New Lamp ${macObj.ipOctlet}`,
+    macAddress: macObj.macAddress,
+    numOfLeds: macObj.numOfLeds,
+    description: "",
+  }))
+
+  await Device.addDevices(newDevices)
 }
 
 export async function createDevice(
   request: FastifyRequest,
   reply: FastifyReply
 ): ApiResponse<IDevice> {
+  // TODO:
   const lampParts = request.body as Omit<IDevice, "guid">
-  const lamp = await DeviceModel.create({
+  return {
+    guid: "hi",
     ...lampParts,
-  })
-
-  return lamp
+  }
 }
 
 export async function updateDevice(
   request: FastifyRequest,
   reply: FastifyReply
-): ApiResponse<number> {
+): ApiResponse<IDevice> {
   const { deviceGuid } = request.params as { deviceGuid: string }
   const lampParts = request.body as Partial<IDevice>
-
-  const [affectedCount] = await DeviceModel.update(
-    {
-      ...lampParts,
-    },
-    {
-      where: {
-        guid: deviceGuid,
-      },
-    }
-  )
-
-  return affectedCount
+  return Device.updateDevice(deviceGuid, lampParts)
 }
 
 export async function deleteDevice(
   request: FastifyRequest,
   reply: FastifyReply
-): ApiResponse<number> {
+): ApiResponse<void> {
   const { deviceGuid } = request.params as { deviceGuid: string }
-  const deletedCount = await DeviceModel.destroy({
-    where: { guid: deviceGuid },
-  })
+  const successful = await Device.deleteDevice(deviceGuid)
 
-  if (deletedCount < 1) {
+  if (successful) {
     return createError(
       reply,
       `Couldn't find lamp with guid: ${deviceGuid}`,
       StatusCodes.NOT_FOUND
     )
   }
-
-  return deletedCount
 }
 
 export async function getDevice(
@@ -144,7 +125,7 @@ export async function getDevice(
   reply: FastifyReply
 ): ApiResponse<IDevice> {
   const { deviceGuid } = request.params as { deviceGuid: string }
-  const lamp = await DeviceModel.findOne({ where: { guid: deviceGuid } })
+  const lamp = await Device.getDevice(deviceGuid)
 
   if (!lamp) {
     return createError(
@@ -173,9 +154,7 @@ export async function setAnimations(
     animationGuids: string[]
   }
 
-  const lamps = await DeviceModel.findAll({
-    where: { guid: { [Op.in]: deviceGuids } },
-  })
+  const lamps = await Device.getDevicesByIds(deviceGuids)
   if (!lamps)
     return createError(
       reply,
@@ -183,15 +162,18 @@ export async function setAnimations(
       StatusCodes.NOT_FOUND
     )
 
-  const animations = await AnimationModel.findAll({
-    where: { guid: { [Op.in]: animationGuids } },
-  })
+  const animations = await Animation.getAnimationsByGuids(animationGuids)
   if (!animations)
     return createError(
       reply,
       `Couldn't find any animations with given ids`,
       StatusCodes.NOT_FOUND
     )
+
+  console.log("==== SETTING ANIMATIONS ON DEVICES =====")
+
+  console.log({ lamps })
+  console.log({ animations })
 
   const animationsByGuid = new Map<string, AnimationItem>()
   animations.forEach((anim) => {
@@ -229,7 +211,7 @@ export async function toggleAnimation(
     animationGuid: string
   }
 
-  const lamp = await DeviceModel.findOne({ where: { guid: deviceGuid } })
+  const lamp = await Device.getDevice(deviceGuid)
   if (!lamp)
     return createError(
       reply,
@@ -237,9 +219,7 @@ export async function toggleAnimation(
       StatusCodes.NOT_FOUND
     )
 
-  const animation = await AnimationModel.findOne({
-    where: { guid: animationGuid },
-  })
+  const animation = await Animation.getAnimation(animationGuid)
   if (!animation)
     return createError(
       reply,
@@ -269,7 +249,7 @@ export async function setSolidColor(
   }
   const color = request.body as RGBW
 
-  const lamp = await DeviceModel.findOne({ where: { guid: deviceGuid } })
+  const lamp = await Device.getDevice(deviceGuid)
   if (!lamp)
     return createError(
       reply,

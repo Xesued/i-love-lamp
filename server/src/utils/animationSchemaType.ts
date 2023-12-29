@@ -21,7 +21,7 @@ export class AnimationSchemaType extends mongoose.SchemaType {
   }
 
   cast(animationDef: any): AnimationItem {
-    switch (animationDef.animationType) {
+    switch (animationDef.type) {
       case AnimationType.BLINK:
         if (!animationDef.onColor || !isRGBW(animationDef.onColor)) {
           throw new Error(

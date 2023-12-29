@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react"
-import type { ChangeEvent } from "react"
-import { AnimationType, SolidAnimation } from "engine/types"
-import { rgbToRgbw, rgbwToRgb } from "engine/utils"
 import { Button, Input } from "@material-tailwind/react"
 import convert from "color-convert"
-import { ColorPickerInput } from "../ColorPickerInput"
+import { AnimationType, SolidAnimation } from "engine/types"
+import { rgbToRgbw, rgbwToRgb } from "engine/utils"
+import type { ChangeEvent } from "react"
+import { useEffect, useState } from "react"
 import { IAnimationNew } from "../../api/lampApi"
+import { ColorPickerInput } from "../ColorPickerInput"
 
 type EditSolidAnimationProps = {
   name?: string
@@ -85,7 +85,7 @@ export function EditSolidAnimation(props: EditSolidAnimationProps) {
 
   const handleAdd = () => {
     const solidOpts: SolidAnimation = {
-      animationType: AnimationType.SOLID,
+      type: AnimationType.SOLID,
       color: rgbToRgbw(convert.hex.rgb(opts.color)),
       endLed: parseInt(opts.endLed),
       startLed: parseInt(opts.startLed),
