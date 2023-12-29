@@ -13,31 +13,11 @@ get_current_ip() {
 
 
 setup_env_variables() {
-    appapiurl=$(yq -e '.app.apiurl' secrets.yaml)
-
-    # Export the variables as environment variables
-    export MYSQL_USER=$username
-    export MYSQL_PASSWORD=$password
-
     # Environment variables when building the frontend.
     local CURRENT_IP=$(get_current_ip)
     export VITE_API_URL="http://${CURRENT_IP}:3000"
 
-    # Enviroment variables the server uses to connect to the database.
-    username=$(yq -e '.database.user' secrets.yaml)
-    password=$(yq -e '.database.password' secrets.yaml)
-    host=$(yq -e '.database.host' secrets.yaml)
-    dbname=$(yq -e '.database.dbname' secrets.yaml)
-    export LAMP_DB_USER=$username
-    export LAMP_DB_PASS=$password
-    export LAMP_DB_HOST=$host
-    export LAMP_DB_DBNAME=$dbname
-
     echo "apiurl: '$VITE_API_URL'"
-    echo "lamp user: '$LAMP_DB_USER'"
-    echo "lamp pass: '$LAMP_DB_PASS'"
-    echo "lamp host: '$LAMP_DB_HOST'"
-    echo "lamp db: '$LAMP_DB_DBNAME'"
 }
 
 
